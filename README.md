@@ -15,9 +15,44 @@ This project uses a "Bridge" pattern to separate API contracts from database sto
 - **D1 Database**: Cloudflare's serverless SQL database.
 - **TypeSpec**: API contract definition.
 
+## Prerequisites
+- [Rust](https://www.rust-lang.org/)
+- [Node.js & npm](https://nodejs.org/)
+- [Wrangler CLI](https://developers.cloudflare.com/workers/wrangler/install-and-update/): `npm install -g wrangler`
+- [TypeSpec Compiler](https://typespec.io/docs/installation): `npm install -g @typespec/compiler`
+- `worker-build`: `cargo install worker-build`
+
+## Local Development
+1. **Install Rust dependencies**:
+   ```bash
+   cargo build
+   ```
+2. **Run the Worker locally**:
+   ```bash
+   npx wrangler dev
+   ```
+
+## Database Migrations (D1)
+To manage your database schema and migrations:
+
+1.  **Initialize Migrations**:
+    ```bash
+    npx wrangler d1 migrations create event-app-db initial_schema
+    ```
+2.  **Apply Migrations Locally**:
+    ```bash
+    npx wrangler d1 migrations apply event-app-db --local
+    ```
+3.  **Apply Migrations to Production**:
+    ```bash
+    npx wrangler d1 migrations apply event-app-db --remote
+    ```
+
+> **Note on `wrangler types`**: While `npx wrangler types` is great for generating TypeScript definitions from your bindings, in this Rust project, we manually define our `Entities` in `src/models/entities.rs` to match the D1 schema, ensuring full control over Rust's type system and serialization.
+
 ## Project Structure
 - `api.tsp`: API contract (TypeSpec).
-- `schema.sql`: Database schema (D1).
+- `schema.sql`: Initial database schema.
 - `src/models/entities.rs`: Database models (Entities).
 - `src/models/dtos.rs`: API Data Transfer Objects (DTOs) and conversion logic.
 - `src/lib.rs`: Worker entry point and routing.
