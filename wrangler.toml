@@ -1,0 +1,11 @@
+name = "event-app-backend"
+main = "src/lib.rs"
+compatibility_date = "2024-04-03"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "event-app-db"
+database_id = "your-database-id-here"
+
+[build]
+command = "worker-build --release"
