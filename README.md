@@ -56,3 +56,6 @@ To manage your database schema and migrations:
 - `src/models/entities.rs`: Database models (Entities).
 - `src/models/dtos.rs`: API Data Transfer Objects (DTOs) and conversion logic.
 - `src/lib.rs`: Worker entry point and routing.
+
+## License
+Proprietary. Copyright (c) 2026 Rick Foxcroft. All rights reserved. See `LICENSE` for more details.
