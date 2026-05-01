@@ -1,0 +1,46 @@
+[tools]
+rust = { version = "stable", targets = ["wasm32-unknown-unknown"] }
+node = "lts"
+"npm:wrangler" = "latest"
+"cargo:worker-build" = "latest"
+"npm:@typespec/compiler" = "latest"
+
+[tasks."setup"]
+description = "Install project dependencies"
+run = "echo 'Tools are managed by mise'"
+
+[tasks."codegen"]
+description = "Generate Rust DTOs from TypeSpec"
+run = "tsp compile api.tsp"
+
+[tasks."build"]
+description = "Build the worker"
+run = "worker-build --release"
+
+[tasks."test"]
+description = "Run all tests"
+run = "cargo test"
+
+[tasks."ci"]
+description = "Run all CI checks"
+depends = ["setup", "lint", "test"]
+
+[tasks."lint"]
+description = "Run clippy and rustfmt"
+run = "cargo clippy -- -D warnings && cargo fmt --check"
+
+[tasks."dev"]
+description = "Run the worker locally"
+run = "wrangler dev"
+
+[tasks."deploy"]
+description = "Deploy the worker to Cloudflare"
+run = "wrangler deploy"
+
+[tasks."db:migrate:local"]
+description = "Apply D1 migrations locally"
+run = "wrangler d1 migrations apply event-app-db --local"
+
+[tasks."db:migrate:remote"]
+description = "Apply D1 migrations to production"
+run = "wrangler d1 migrations apply event-app-db --remote"

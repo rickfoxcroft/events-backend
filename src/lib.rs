@@ -1,7 +1,12 @@
 use worker::*;
 
-mod models;
+pub mod adapters;
+pub mod models;
+pub mod ports;
+
+use adapters::database::D1VenueRepository;
 use models::*;
+use ports::*;
 
 #[event(fetch)]
 pub async fn main(req: Request, env: Env, _ctx: worker::Context) -> Result<Response> {
@@ -12,28 +17,33 @@ pub async fn main(req: Request, env: Env, _ctx: worker::Context) -> Result<Respo
         .get("/", |_, _| Response::ok("Event Venue API"))
         .get_async("/venues", |_, ctx| async move {
             let d1 = ctx.env.d1("DB")?;
-            let statement = d1.prepare("SELECT * FROM venues");
-            let entities = statement.all().await?
-                .results::<VenueEntity>()?;
-            
-            // Bridge: Convert Entities to DTOs
-            let dtos: Vec<VenueDTO> = entities.into_iter().map(VenueDTO::from).collect();
-            
-            Response::from_json(&dtos)
+            let repo = D1VenueRepository::new(d1);
+            handle_list_venues(&repo).await
         })
-        .post_async("/venues", |mut req, ctx| async move {
+        .post_async("/venues", |req, ctx| async move {
             let d1 = ctx.env.d1("DB")?;
-            let input: VenueInputDTO = req.json().await?;
-            
-            // Logic to insert into D1 (omitted for brevity, would typically involve creating an entity)
-            // Example:
-            // let id = uuid::Uuid::new_v4().to_string();
-            // d1.prepare("INSERT INTO venues (id, name, location, capacity, owner_id) VALUES (?, ?, ?, ?, ?)")
-            //   .bind(&[id.into(), input.name.into(), input.location.into(), input.capacity.into(), "owner-1".into()])?
-            //   .run().await?;
-
-            Response::ok("Venue created")
+            let repo = D1VenueRepository::new(d1);
+            handle_create_venue(req, &repo).await
         })
         .run(req, env)
         .await
+}
+
+async fn handle_list_venues<R: VenueRepository>(repo: &R) -> Result<Response> {
+    let entities = repo.list_venues().await?;
+    let dtos: Vec<VenueDTO> = entities.into_iter().map(VenueDTO::from).collect();
+    Response::from_json(&dtos)
+}
+
+async fn handle_create_venue<R: VenueRepository>(mut req: Request, repo: &R) -> Result<Response> {
+    let input: VenueInputDTO = req.json().await?;
+    let entity = VenueEntity {
+        id: "temp-id".to_string(),
+        name: input.name,
+        location: input.location,
+        capacity: input.capacity,
+        owner_id: "owner-1".to_string(),
+    };
+    repo.save_venue(entity).await?;
+    Response::ok("Venue created")
 }

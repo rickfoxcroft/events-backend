@@ -1,5 +1,5 @@
+use crate::models::entities::{BookingEntity, VenueEntity};
 use serde::{Deserialize, Serialize};
-use crate::models::entities::{VenueEntity, BookingEntity};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct VenueDTO {

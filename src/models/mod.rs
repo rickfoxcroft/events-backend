@@ -1,5 +1,5 @@
-pub mod entities;
 pub mod dtos;
+pub mod entities;
 
-pub use entities::*;
 pub use dtos::*;
+pub use entities::*;
