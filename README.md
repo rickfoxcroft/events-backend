@@ -19,11 +19,26 @@ This project uses a "Bridge" pattern to separate API contracts from database sto
 
 ## Prerequisites
 
-- [mise](https://mise.jdx.dev/): The project uses `mise` to automatically manage tool versions (Rust, Node, Wrangler, etc.).
+- **Option A: Dev Container (Recommended)**: [Docker Desktop](https://www.docker.com/products/docker-desktop/) or [OrbStack](https://orbstack.dev/) and VS Code with the [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers).
+- **Option B: Manual Setup**: [mise](https://mise.jdx.dev/) for tool version management.
 
 ## Local Development
 
-1. **Install tools and dependencies**:
+### Using Dev Containers (VS Code/Cursor)
+
+1.  Open the project in VS Code.
+2.  Click **"Reopen in Container"** when prompted (or run `Dev Containers: Reopen in Container` from the Command Palette).
+3.  All tools and dependencies will be automatically installed.
+
+### Manual Setup (CLI)
+
+1.  **Install system dependencies** (Linux-specific, e.g., Ubuntu):
+    ```bash
+    sudo apt-get install -y libssl-dev pkg-config
+    ```
+
+2.  **Install tools and dependencies**:
+
 
     ```bash
     mise install
