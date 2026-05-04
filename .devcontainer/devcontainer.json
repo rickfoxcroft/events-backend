@@ -1,9 +1,12 @@
 {
-  "name": "Event App Backend",
+  "name": "backend",
   "build": {
     "dockerfile": "Dockerfile",
     "context": ".."
   },
+  "appPort": [
+    8787
+  ],
   "customizations": {
     "vscode": {
       "extensions": [
@@ -17,12 +20,6 @@
         "rust-analyzer.checkOnSave.command": "clippy",
         "mise.enabled": true
       }
-    }
-  },
-  "remoteUser": "vscode",
-  "features": {
-    "ghcr.io/devcontainers/features/node:1": {
-      "version": "lts"
     }
   },
   "forwardPorts": [

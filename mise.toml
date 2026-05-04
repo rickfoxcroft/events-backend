@@ -1,5 +1,6 @@
 [tools]
 rust = { version = "stable", targets = ["wasm32-unknown-unknown"] }
+rust-analyzer = "latest"
 node = "lts"
 "npm:wrangler" = "latest"
 "cargo:worker-build" = "latest"
