@@ -1,0 +1,19 @@
+meta {
+  name: Create Venue
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{base_url}}/venues
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "Grand Conference Hall",
+    "location": "123 Tech Street",
+    "capacity": 500
+  }
+}

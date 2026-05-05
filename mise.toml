@@ -36,7 +36,7 @@ run = "wrangler dev"
 
 [tasks."deploy"]
 description = "Deploy the worker to Cloudflare"
-run = "wrangler deploy"
+run = "wrangler deploy --env production"
 
 [tasks."db:migrate:local"]
 description = "Apply D1 migrations locally"
@@ -44,4 +44,4 @@ run = "wrangler d1 migrations apply event-app-db --local"
 
 [tasks."db:migrate:remote"]
 description = "Apply D1 migrations to production"
-run = "wrangler d1 migrations apply event-app-db --remote"
+run = "wrangler d1 migrations apply event-app-db --remote --env production"

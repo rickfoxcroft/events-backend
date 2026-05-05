@@ -22,6 +22,31 @@ This project uses a "Bridge" pattern to separate API contracts from database sto
 - **Option A: Dev Container (Recommended)**: [Docker Desktop](https://www.docker.com/products/docker-desktop/) or [OrbStack](https://orbstack.dev/) and VS Code with the [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers).
 - **Option B: Manual Setup**: [mise](https://mise.jdx.dev/) for tool version management.
 
+## Getting Started
+
+### 1. Environment Configuration
+
+This project uses `.env` files for local configuration and GitHub Secrets for CI/CD.
+
+1.  **Local Environment**: Copy the example file and fill in your values:
+    ```bash
+    cp .env.example .env
+    ```
+    *   `PROD_BASE_URL`: The URL of your deployed Cloudflare Worker (used by Bruno).
+
+2.  **Cloudflare Configuration**: Update `wrangler.toml` with your specific D1 Database IDs:
+    *   The top-level `[[d1_databases]]` is for local development.
+    *   The `[env.production]` block is for your deployed database.
+
+### 2. API Testing (Bruno)
+
+We use [Bruno](https://www.usebruno.com/) for API testing, with request definitions stored in the `bruno/` directory.
+
+1.  Open the Bruno app.
+2.  Click **Open Collection** and select the `bruno/` folder in this project.
+3.  Select an environment (**Local** or **Production**) from the top-right dropdown.
+4.  If using **Production**, ensure your `.env` file has the correct `PROD_BASE_URL`.
+
 ## Local Development
 
 ### Using Dev Containers (VS Code/Cursor)
