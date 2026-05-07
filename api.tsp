@@ -5,9 +5,7 @@ import "@typespec/openapi3";
 using TypeSpec.Http;
 using TypeSpec.Rest;
 
-@service(#{
-  title: "Event Venue Booking API",
-})
+@service(#{ title: "Event Venue Booking API" })
 namespace EventApp;
 
 model VenueDTO {
@@ -35,5 +33,7 @@ model BookingDTO {
 @route("/venues")
 interface Venues {
   @get list(): VenueDTO[];
-  @post create(@body venue: VenueInputDTO): { @statusCode statusCode: 201 };
+  @post create(@body venue: VenueInputDTO): {
+    @statusCode statusCode: 201;
+  };
 }

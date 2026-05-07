@@ -11,3 +11,4 @@ These files serve as:
 ## Files
 
 - `list_venue.feature`: Scenarios related to venue owners listing and managing their venues.
+- `fetch_venues.feature`: Scenarios for event organizers viewing available venues.

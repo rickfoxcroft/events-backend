@@ -28,6 +28,9 @@ build/
 wrangler.toml.local
 .dev.vars
 
+# TypeSpec
+tsp-output/
+
 # IDEs
 .vscode/
 .idea/

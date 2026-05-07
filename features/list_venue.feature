@@ -6,7 +6,7 @@ Feature: Venue Listing
   Scenario: Successfully listing a new venue
     Given I am a registered venue owner
     When I submit the following details for my new venue:
-      | Name             | Location      | Capacity |
-      | Grand Ballroom   | Downtown      | 500      |
+      | Name           | Location | Capacity |
+      | Grand Ballroom | Downtown |      500 |
     Then my venue should be successfully listed
     And I should see "Grand Ballroom" in my list of venues
