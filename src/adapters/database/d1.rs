@@ -1,4 +1,4 @@
-use crate::models::VenueEntity;
+use crate::models::{VenueEntity, VenueImageEntity};
 use crate::ports::VenueRepository;
 use worker::d1::D1Database;
 use worker::Result;
@@ -29,8 +29,53 @@ impl VenueRepository for D1VenueRepository {
         Ok(())
     }
 
-    async fn list_venues(&self) -> Result<Vec<VenueEntity>> {
-        let results = self.db.prepare("SELECT * FROM venues").all().await?;
-        results.results::<VenueEntity>()
+    async fn list_venues(&self) -> Result<Vec<(VenueEntity, Vec<VenueImageEntity>)>> {
+        let venues = self.db.prepare("SELECT * FROM venues").all().await?.results::<VenueEntity>()?;
+        let mut results = Vec::new();
+
+        for venue in venues {
+            let images = self.db
+                .prepare("SELECT * FROM venue_images WHERE venue_id = ?")
+                .bind(&[venue.id.clone().into()])?
+                .all()
+                .await?
+                .results::<VenueImageEntity>()?;
+            results.push((venue, images));
+        }
+
+        Ok(results)
+    }
+
+    async fn get_venue_with_images(&self, id: String) -> Result<Option<(VenueEntity, Vec<VenueImageEntity>)>> {
+        let venue = self.db
+            .prepare("SELECT * FROM venues WHERE id = ?")
+            .bind(&[id.clone().into()])?
+            .first::<VenueEntity>(None)
+            .await?;
+
+        if let Some(venue) = venue {
+            let images = self.db
+                .prepare("SELECT * FROM venue_images WHERE venue_id = ?")
+                .bind(&[id.into()])?
+                .all()
+                .await?
+                .results::<VenueImageEntity>()?;
+            Ok(Some((venue, images)))
+        } else {
+            Ok(None)
+        }
+    }
+
+    async fn save_venue_image(&self, image: VenueImageEntity) -> Result<()> {
+        self.db
+            .prepare("INSERT INTO venue_images (id, venue_id, url) VALUES (?, ?, ?)")
+            .bind(&[
+                image.id.into(),
+                image.venue_id.into(),
+                image.url.into(),
+            ])?
+            .run()
+            .await?;
+        Ok(())
     }
 }

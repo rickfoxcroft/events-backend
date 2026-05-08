@@ -1,4 +1,4 @@
-use crate::models::entities::{BookingEntity, VenueEntity};
+use crate::models::entities::{BookingEntity, VenueEntity, VenueImageEntity};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -8,6 +8,13 @@ pub struct VenueDTO {
     pub location: String,
     pub capacity: i32,
     pub owner_id: String,
+    pub images: Vec<VenueImageDTO>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct VenueImageDTO {
+    pub id: String,
+    pub url: String,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -15,6 +22,18 @@ pub struct VenueInputDTO {
     pub name: String,
     pub location: String,
     pub capacity: i32,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct ImageUploadURLResponseDTO {
+    pub upload_url: String,
+    pub image_id: String,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct ImageUploadCompleteDTO {
+    pub image_id: String,
+    pub filename: String,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -27,14 +46,25 @@ pub struct BookingDTO {
 }
 
 // The Bridge: From Entity to DTO
-impl From<VenueEntity> for VenueDTO {
-    fn from(entity: VenueEntity) -> Self {
+impl From<(VenueEntity, Vec<VenueImageEntity>)> for VenueDTO {
+    fn from(data: (VenueEntity, Vec<VenueImageEntity>)) -> Self {
+        let (entity, images) = data;
         Self {
             id: entity.id,
             name: entity.name,
             location: entity.location,
             capacity: entity.capacity,
             owner_id: entity.owner_id,
+            images: images.into_iter().map(VenueImageDTO::from).collect(),
+        }
+    }
+}
+
+impl From<VenueImageEntity> for VenueImageDTO {
+    fn from(entity: VenueImageEntity) -> Self {
+        Self {
+            id: entity.id,
+            url: entity.url,
         }
     }
 }

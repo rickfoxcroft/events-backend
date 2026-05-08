@@ -10,6 +10,13 @@ pub struct VenueEntity {
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct VenueImageEntity {
+    pub id: String,
+    pub venue_id: String,
+    pub url: String,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct BookingEntity {
     pub id: String,
     pub venue_id: String,
