@@ -1,19 +1,19 @@
 use crate::models::{VenueEntity, VenueImageEntity};
 use crate::ports::VenueRepository;
-use std::sync::RwLock;
+use std::sync::{Arc, RwLock};
 use worker::Result;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct MockVenueRepository {
-    venues: RwLock<Vec<VenueEntity>>,
-    images: RwLock<Vec<VenueImageEntity>>,
+    venues: Arc<RwLock<Vec<VenueEntity>>>,
+    images: Arc<RwLock<Vec<VenueImageEntity>>>,
 }
 
 impl MockVenueRepository {
     pub fn new() -> Self {
         Self {
-            venues: RwLock::new(Vec::new()),
-            images: RwLock::new(Vec::new()),
+            venues: Arc::new(RwLock::new(Vec::new())),
+            images: Arc::new(RwLock::new(Vec::new())),
         }
     }
 }

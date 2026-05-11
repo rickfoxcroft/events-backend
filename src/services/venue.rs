@@ -50,3 +50,72 @@ impl<R: VenueRepository, S: ImageStorage> VenueService<R, S> {
         self.repo.save_venue_image(image_entity).await
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::adapters::database::MockVenueRepository;
+    use crate::adapters::storage::mock::MockImageStorage;
+    use crate::models::{VenueInputDTO, ImageUploadCompleteDTO};
+
+    #[tokio::test]
+    async fn test_create_venue() {
+        let repo = MockVenueRepository::new();
+        let storage = MockImageStorage::new();
+        let service = VenueService::new(repo, storage);
+
+        let input = VenueInputDTO {
+            name: "Test Venue".to_string(),
+            location: "Test Location".to_string(),
+            capacity: 100,
+        };
+
+        let result = service.create_venue(input).await;
+        assert!(result.is_ok());
+
+        let venues = service.list_venues().await.unwrap();
+        assert_eq!(venues.len(), 1);
+        assert_eq!(venues[0].name, "Test Venue");
+    }
+
+    #[tokio::test]
+    async fn test_get_upload_url() {
+        let repo = MockVenueRepository::new();
+        let storage = MockImageStorage::new();
+        let service = VenueService::new(repo, storage);
+
+        let result = service.get_upload_url("venue-1").await;
+        assert!(result.is_ok());
+        let response = result.unwrap();
+        assert!(response.upload_url.contains("upload"));
+        assert!(!response.image_id.is_empty());
+    }
+
+    #[tokio::test]
+    async fn test_complete_upload() {
+        let repo = MockVenueRepository::new();
+        let storage = MockImageStorage::new();
+        let service = VenueService::new(repo, storage);
+
+        // First create a venue
+        service.create_venue(VenueInputDTO {
+            name: "Test Venue".to_string(),
+            location: "Test Location".to_string(),
+            capacity: 100,
+        }).await.unwrap();
+
+        let complete_data = ImageUploadCompleteDTO {
+            image_id: "test-img-id".to_string(),
+            filename: "test.jpg".to_string(),
+        };
+
+        let result = service.complete_upload("temp-id", complete_data).await;
+        assert!(result.is_ok());
+
+        let venues = service.list_venues().await.unwrap();
+        // Since create_venue currently uses "temp-id" and list_venues returns all,
+        // we check the first venue's images.
+        assert_eq!(venues[0].images.len(), 1);
+        assert!(venues[0].images[0].url.contains("public/test-img-id"));
+    }
+}

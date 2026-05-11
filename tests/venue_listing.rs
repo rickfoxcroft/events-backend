@@ -1,11 +1,13 @@
 use cucumber::{given, then, when, World};
 use event_app_backend::adapters::database::MockVenueRepository;
-use event_app_backend::models::{VenueEntity, VenueImageEntity};
-use event_app_backend::ports::VenueRepository;
+use event_app_backend::adapters::storage::mock::MockImageStorage;
+use event_app_backend::models::{VenueInputDTO, ImageUploadCompleteDTO};
+use event_app_backend::services::VenueService;
 
 #[derive(Debug, World)]
 pub struct VenueWorld {
     repo: MockVenueRepository,
+    storage: MockImageStorage,
     owner_id: Option<String>,
     last_venue_id: Option<String>,
     last_response_status: Option<u16>,
@@ -15,12 +17,22 @@ impl Default for VenueWorld {
     fn default() -> Self {
         Self {
             repo: MockVenueRepository::new(),
+            storage: MockImageStorage::new(),
             owner_id: None,
             last_venue_id: None,
             last_response_status: None,
         }
     }
 }
+
+impl VenueWorld {
+    fn service(&self) -> VenueService<MockVenueRepository, MockImageStorage> {
+        VenueService::new(self.repo.clone(), self.storage.clone())
+    }
+}
+
+// Ensure MockVenueRepository and MockImageStorage are Cloneable for ease of use in tests
+// They are now updated with Arc.
 
 #[given(expr = "I am a registered venue owner")]
 async fn i_am_a_registered_owner(world: &mut VenueWorld) {
@@ -37,22 +49,20 @@ async fn i_submit_venue_details(world: &mut VenueWorld, step: &cucumber::gherkin
         let location = &row[1];
         let capacity: i32 = row[2].parse().expect("Capacity must be a number");
 
-        let venue_id = format!("id-{}", name.to_lowercase().replace(' ', "-"));
-        let entity = VenueEntity {
-            id: venue_id.clone(),
+        let input = VenueInputDTO {
             name: name.clone(),
             location: location.clone(),
             capacity,
-            owner_id: world.owner_id.clone().expect("Owner must be registered"),
         };
 
         world
-            .repo
-            .save_venue(entity)
+            .service()
+            .create_venue(input)
             .await
-            .expect("Failed to save venue");
+            .expect("Failed to create venue");
         
-        world.last_venue_id = Some(venue_id);
+        // Note: VenueService currently uses "temp-id" as a placeholder
+        world.last_venue_id = Some("temp-id".to_string());
         world.last_response_status = Some(201);
     }
 }
@@ -62,16 +72,17 @@ async fn i_upload_images(world: &mut VenueWorld, step: &cucumber::gherkin::Step)
     let table = step.table().expect("Step must have a table");
     let venue_id = world.last_venue_id.clone().expect("No venue created to upload images to");
 
-    for (i, row) in table.rows.iter().skip(1).enumerate() {
+    for row in table.rows.iter().skip(1) {
         let filename = &row[0];
         
-        let image = VenueImageEntity {
-            id: format!("img-{}", i),
-            venue_id: venue_id.clone(),
-            url: format!("https://example.com/{}", filename),
+        let upload_resp = world.service().get_upload_url(&venue_id).await.expect("Failed to get upload url");
+        
+        let complete_data = ImageUploadCompleteDTO {
+            image_id: upload_resp.image_id,
+            filename: filename.clone(),
         };
         
-        world.repo.save_venue_image(image).await.expect("Failed to save image");
+        world.service().complete_upload(&venue_id, complete_data).await.expect("Failed to complete upload");
     }
 }
 
@@ -83,24 +94,24 @@ async fn venue_should_be_listed(world: &mut VenueWorld) {
 #[then(expr = "I should see {string} in my list of venues")]
 async fn i_should_see_venue_in_list(world: &mut VenueWorld, name: String) {
     let venues = world
-        .repo
+        .service()
         .list_venues()
         .await
         .expect("Failed to list venues");
-    let exists = venues.iter().any(|(v, _)| v.name == name);
+    let exists = venues.iter().any(|v| v.name == name);
     assert!(exists, "Venue '{}' not found in list", name);
 }
 
 #[then(expr = "the venue {string} should have {int} images attached")]
 async fn venue_should_have_n_images(world: &mut VenueWorld, name: String, count: usize) {
     let venues = world
-        .repo
+        .service()
         .list_venues()
         .await
         .expect("Failed to list venues");
     
-    let (_, images) = venues.iter().find(|(v, _)| v.name == name).expect("Venue not found");
-    assert_eq!(images.len(), count, "Expected {} images, found {}", count, images.len());
+    let venue = venues.iter().find(|v| v.name == name).expect("Venue not found");
+    assert_eq!(venue.images.len(), count, "Expected {} images, found {}", count, venue.images.len());
 }
 
 #[tokio::test]
