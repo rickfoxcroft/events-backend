@@ -1,5 +1,12 @@
 use worker::*;
 
+/*
+TODO: Implement a custom error catalog using the `thiserror` crate.
+This will allow for mapping internal errors (database, storage, etc.)
+to meaningful API errors (404 Not Found, 400 Bad Request, etc.)
+instead of returning generic 500 Internal Server Errors via `worker::Error`.
+*/
+
 pub mod adapters;
 pub mod handlers;
 pub mod models;

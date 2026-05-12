@@ -22,17 +22,20 @@ impl<R: VenueRepository, S: ImageStorage> VenueService<R, S> {
 
     pub async fn create_venue(&self, input: VenueInputDTO) -> Result<()> {
         let entity = VenueEntity {
+            // TODO: Generate a real UUID for the venue
             id: "temp-id".to_string(),
             name: input.name,
             location: input.location,
             capacity: input.capacity,
+            // TODO: Get the actual owner_id from the authenticated user context
             owner_id: "owner-1".to_string(),
         };
         self.repo.save_venue(entity).await
     }
 
     pub async fn get_upload_url(&self, venue_id: &str) -> Result<ImageUploadURLResponseDTO> {
-        let image_id = "img-temp-id".to_string(); // In a real app, generate a UUID
+        // TODO: Generate a real UUID for the image
+        let image_id = "img-temp-id".to_string();
         let upload_url = self
             .storage
             .generate_upload_url(venue_id, &image_id)
