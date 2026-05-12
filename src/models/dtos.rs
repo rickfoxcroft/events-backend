@@ -22,18 +22,13 @@ pub struct VenueInputDTO {
     pub name: String,
     pub location: String,
     pub capacity: i32,
+    pub image_ids: Vec<String>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ImageUploadURLResponseDTO {
     pub upload_url: String,
     pub image_id: String,
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct ImageUploadCompleteDTO {
-    pub image_id: String,
-    pub filename: String,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
