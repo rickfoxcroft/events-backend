@@ -6,7 +6,7 @@ pub mod models;
 pub mod ports;
 pub mod services;
 use adapters::database::D1VenueRepository;
-use handlers::venue::CloudflareImagesConfig;
+use adapters::storage::cloudflare_images::CloudflareImagesConfig;
 
 #[event(fetch)]
 pub async fn main(req: Request, env: Env, _ctx: worker::Context) -> Result<Response> {
@@ -44,9 +44,9 @@ pub async fn main(req: Request, env: Env, _ctx: worker::Context) -> Result<Respo
 }
 
 fn get_cloudflare_images_config(env: &Env) -> Result<CloudflareImagesConfig> {
-    Ok(CloudflareImagesConfig {
-        account_id: env.var("CF_ACCOUNT_ID")?.to_string(),
-        api_token: env.secret("CF_IMAGES_API_TOKEN")?.to_string(),
-        account_hash: env.var("CF_IMAGES_ACCOUNT_HASH")?.to_string(),
-    })
+    Ok(CloudflareImagesConfig::new(
+        &env.var("CLOUDFLARE_ACCOUNT_ID")?.to_string(),
+        &env.secret("CLOUDFLARE_API_TOKEN")?.to_string(),
+        &env.var("CLOUDFLARE_ACCOUNT_HASH")?.to_string(),
+    ))
 }
