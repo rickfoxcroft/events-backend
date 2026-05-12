@@ -74,19 +74,16 @@ async fn the_following_venues_exist_with_images(
             capacity,
         };
 
-        world
+        let venue_id = world
             .service()
             .create_venue(input)
             .await
             .expect("Failed to create venue");
 
-        // Note: VenueService currently uses "temp-id"
-        let venue_id = "temp-id";
-
         for img_name in images_str.split(',') {
             let upload_resp = world
                 .service()
-                .get_upload_url(venue_id)
+                .get_upload_url(&venue_id.0)
                 .await
                 .expect("Failed to get upload url");
 
@@ -97,7 +94,7 @@ async fn the_following_venues_exist_with_images(
 
             world
                 .service()
-                .complete_upload(venue_id, complete_data)
+                .complete_upload(&venue_id.0, complete_data)
                 .await
                 .expect("Failed to complete upload");
         }
