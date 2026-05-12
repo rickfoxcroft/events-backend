@@ -29,6 +29,7 @@ model VenueInputDTO {
   name: string;
   location: string;
   capacity: int32;
+  image_ids: string[];
 }
 
 model ImageUploadURLResponseDTO {
@@ -37,24 +38,16 @@ model ImageUploadURLResponseDTO {
   image_id: string;
 }
 
-model ImageUploadCompleteDTO {
-  @format("uuid")
-  image_id: string;
-  filename: string;
-}
-
 @route("/venues")
 interface Venues {
   @get list(): VenueDTO[];
   @post create(@body venue: VenueInputDTO): {
     @statusCode statusCode: 201;
   };
-  
-  @route("/{id}/images/upload-url")
-  @post getUploadUrl(@path @format("uuid") id: string): ImageUploadURLResponseDTO;
+}
 
-  @route("/{id}/images/complete")
-  @post completeUpload(@path @format("uuid") id: string, @body data: ImageUploadCompleteDTO): {
-    @statusCode statusCode: 200;
-  };
+@route("/images")
+interface Images {
+  @route("/upload-url")
+  @post getUploadUrl(): ImageUploadURLResponseDTO;
 }

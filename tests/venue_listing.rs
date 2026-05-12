@@ -1,7 +1,7 @@
 use cucumber::{given, then, when, World};
 use event_app_backend::adapters::database::MockVenueRepository;
 use event_app_backend::adapters::storage::mock::MockImageStorage;
-use event_app_backend::models::{ImageUploadCompleteDTO, VenueInputDTO};
+use event_app_backend::models::VenueInputDTO;
 use event_app_backend::services::VenueService;
 
 #[derive(Debug, World)]
@@ -9,6 +9,7 @@ pub struct VenueWorld {
     repo: MockVenueRepository,
     storage: MockImageStorage,
     owner_id: Option<String>,
+    uploaded_image_ids: Vec<String>,
     last_venue_id: Option<String>,
     last_response_status: Option<u16>,
 }
@@ -19,6 +20,7 @@ impl Default for VenueWorld {
             repo: MockVenueRepository::new(),
             storage: MockImageStorage::new(),
             owner_id: None,
+            uploaded_image_ids: Vec::new(),
             last_venue_id: None,
             last_response_status: None,
         }
@@ -31,12 +33,23 @@ impl VenueWorld {
     }
 }
 
-// Ensure MockVenueRepository and MockImageStorage are Cloneable for ease of use in tests
-// They are now updated with Arc.
-
 #[given(expr = "I am a registered venue owner")]
 async fn i_am_a_registered_owner(world: &mut VenueWorld) {
     world.owner_id = Some("owner-1".to_string());
+}
+
+#[when(expr = "I upload the following images:")]
+async fn i_upload_images(world: &mut VenueWorld, step: &cucumber::gherkin::Step) {
+    let table = step.table().expect("Step must have a table");
+
+    for _ in table.rows.iter().skip(1) {
+        let upload_resp = world
+            .service()
+            .get_upload_url()
+            .await
+            .expect("Failed to get upload url");
+        world.uploaded_image_ids.push(upload_resp.image_id);
+    }
 }
 
 #[when(expr = "I submit the following details for my new venue:")]
@@ -53,6 +66,7 @@ async fn i_submit_venue_details(world: &mut VenueWorld, step: &cucumber::gherkin
             name: name.clone(),
             location: location.clone(),
             capacity,
+            image_ids: world.uploaded_image_ids.drain(..).collect(),
         };
 
         let venue_id = world
@@ -63,36 +77,6 @@ async fn i_submit_venue_details(world: &mut VenueWorld, step: &cucumber::gherkin
 
         world.last_venue_id = Some(venue_id.0);
         world.last_response_status = Some(201);
-    }
-}
-
-#[when(expr = "I upload the following images:")]
-async fn i_upload_images(world: &mut VenueWorld, step: &cucumber::gherkin::Step) {
-    let table = step.table().expect("Step must have a table");
-    let venue_id = world
-        .last_venue_id
-        .clone()
-        .expect("No venue created to upload images to");
-
-    for row in table.rows.iter().skip(1) {
-        let filename = &row[0];
-
-        let upload_resp = world
-            .service()
-            .get_upload_url(&venue_id)
-            .await
-            .expect("Failed to get upload url");
-
-        let complete_data = ImageUploadCompleteDTO {
-            image_id: upload_resp.image_id,
-            filename: filename.clone(),
-        };
-
-        world
-            .service()
-            .complete_upload(&venue_id, complete_data)
-            .await
-            .expect("Failed to complete upload");
     }
 }
 

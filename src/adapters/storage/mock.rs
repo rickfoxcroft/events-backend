@@ -25,7 +25,7 @@ impl Default for MockImageStorage {
 }
 
 impl ImageStorage for MockImageStorage {
-    async fn generate_upload_url(&self, _venue_id: &str, image_id: &str) -> Result<String> {
+    async fn generate_upload_url(&self, image_id: &str) -> Result<String> {
         let url = format!("{}/upload/{}", self.public_url_prefix, image_id);
         let mut urls = self
             .upload_urls

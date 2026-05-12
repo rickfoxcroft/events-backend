@@ -1,7 +1,7 @@
 use cucumber::{given, then, when, World};
 use event_app_backend::adapters::database::MockVenueRepository;
 use event_app_backend::adapters::storage::mock::MockImageStorage;
-use event_app_backend::models::{ImageUploadCompleteDTO, VenueDTO, VenueInputDTO};
+use event_app_backend::models::{VenueDTO, VenueInputDTO};
 use event_app_backend::services::VenueService;
 
 #[derive(Debug, World)]
@@ -45,6 +45,7 @@ async fn the_following_venues_exist(world: &mut FetchVenueWorld, step: &cucumber
             name: name.clone(),
             location: location.clone(),
             capacity,
+            image_ids: Vec::new(),
         };
 
         world
@@ -68,36 +69,28 @@ async fn the_following_venues_exist_with_images(
         let capacity: i32 = row[2].parse().expect("Capacity must be a number");
         let images_str = &row[3];
 
+        let mut image_ids = Vec::new();
+        for _ in images_str.split(',') {
+            let upload_resp = world
+                .service()
+                .get_upload_url()
+                .await
+                .expect("Failed to get upload url");
+            image_ids.push(upload_resp.image_id);
+        }
+
         let input = VenueInputDTO {
             name: name.clone(),
             location: location.clone(),
             capacity,
+            image_ids,
         };
 
-        let venue_id = world
+        world
             .service()
             .create_venue(input)
             .await
             .expect("Failed to create venue");
-
-        for img_name in images_str.split(',') {
-            let upload_resp = world
-                .service()
-                .get_upload_url(&venue_id.0)
-                .await
-                .expect("Failed to get upload url");
-
-            let complete_data = ImageUploadCompleteDTO {
-                image_id: upload_resp.image_id,
-                filename: img_name.trim().to_string(),
-            };
-
-            world
-                .service()
-                .complete_upload(&venue_id.0, complete_data)
-                .await
-                .expect("Failed to complete upload");
-        }
     }
 }
 

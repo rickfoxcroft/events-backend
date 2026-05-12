@@ -34,17 +34,11 @@ pub async fn main(req: Request, env: Env, _ctx: worker::Context) -> Result<Respo
             let config = get_cloudflare_images_config(&ctx.env)?;
             handlers::venue::create_venue(req, repo, config).await
         })
-        .post_async("/venues/:id/images/upload-url", |_, ctx| async move {
+        .post_async("/images/upload-url", |req, ctx| async move {
             let d1 = ctx.env.d1("DB")?;
             let repo = D1VenueRepository::new(d1);
             let config = get_cloudflare_images_config(&ctx.env)?;
-            handlers::venue::get_upload_url(ctx, repo, config).await
-        })
-        .post_async("/venues/:id/images/complete", |req, ctx| async move {
-            let d1 = ctx.env.d1("DB")?;
-            let repo = D1VenueRepository::new(d1);
-            let config = get_cloudflare_images_config(&ctx.env)?;
-            handlers::venue::complete_upload(req, ctx, repo, config).await
+            handlers::image::get_upload_url(req, repo, config).await
         })
         .run(req, env)
         .await

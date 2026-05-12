@@ -34,7 +34,7 @@ struct CFDirectUploadResult {
 }
 
 impl ImageStorage for CloudflareImagesConfig {
-    async fn generate_upload_url(&self, _venue_id: &str, _image_id: &str) -> Result<String> {
+    async fn generate_upload_url(&self, _image_id: &str) -> Result<String> {
         let url = format!(
             "https://api.cloudflare.com/client/v4/accounts/{}/images/v2/direct_upload",
             self.account_id
