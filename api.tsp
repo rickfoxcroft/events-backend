@@ -9,15 +9,18 @@ using TypeSpec.Rest;
 namespace EventApp;
 
 model VenueDTO {
+  @format("uuid")
   id: string;
   name: string;
   location: string;
   capacity: int32;
+  @format("uuid")
   owner_id: string;
   images: VenueImageDTO[];
 }
 
 model VenueImageDTO {
+  @format("uuid")
   id: string;
   url: string;
 }
@@ -30,10 +33,12 @@ model VenueInputDTO {
 
 model ImageUploadURLResponseDTO {
   upload_url: string;
+  @format("uuid")
   image_id: string;
 }
 
 model ImageUploadCompleteDTO {
+  @format("uuid")
   image_id: string;
   filename: string;
 }
@@ -46,10 +51,10 @@ interface Venues {
   };
   
   @route("/{id}/images/upload-url")
-  @post getUploadUrl(@path id: string): ImageUploadURLResponseDTO;
+  @post getUploadUrl(@path @format("uuid") id: string): ImageUploadURLResponseDTO;
 
   @route("/{id}/images/complete")
-  @post completeUpload(@path id: string, @body data: ImageUploadCompleteDTO): {
+  @post completeUpload(@path @format("uuid") id: string, @body data: ImageUploadCompleteDTO): {
     @statusCode statusCode: 200;
   };
 }

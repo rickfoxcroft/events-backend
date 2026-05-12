@@ -55,14 +55,13 @@ async fn i_submit_venue_details(world: &mut VenueWorld, step: &cucumber::gherkin
             capacity,
         };
 
-        world
+        let venue_id = world
             .service()
             .create_venue(input)
             .await
             .expect("Failed to create venue");
 
-        // Note: VenueService currently uses "temp-id" as a placeholder
-        world.last_venue_id = Some("temp-id".to_string());
+        world.last_venue_id = Some(venue_id.0);
         world.last_response_status = Some(201);
     }
 }
@@ -114,7 +113,7 @@ async fn i_should_see_venue_in_list(world: &mut VenueWorld, name: String) {
 }
 
 #[then(expr = "the venue {string} should have {int} images attached")]
-async fn venue_should_have_n_images(world: &mut VenueWorld, name: String, count: usize) {
+async fn venue_should_have_images(world: &mut VenueWorld, name: String, count: usize) {
     let venues = world
         .service()
         .list_venues()

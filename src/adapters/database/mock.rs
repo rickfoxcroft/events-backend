@@ -1,26 +1,18 @@
-use crate::models::{VenueEntity, VenueImageEntity};
+use crate::models::{VenueEntity, VenueId, VenueImageEntity};
 use crate::ports::VenueRepository;
+use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
 use worker::Result;
 
-#[derive(Debug, Clone)]
+#[derive(Clone, Default, Debug)]
 pub struct MockVenueRepository {
-    venues: Arc<RwLock<Vec<VenueEntity>>>,
-    images: Arc<RwLock<Vec<VenueImageEntity>>>,
+    venues: Arc<RwLock<HashMap<VenueId, VenueEntity>>>,
+    venue_images: Arc<RwLock<HashMap<VenueId, Vec<VenueImageEntity>>>>,
 }
 
 impl MockVenueRepository {
     pub fn new() -> Self {
-        Self {
-            venues: Arc::new(RwLock::new(Vec::new())),
-            images: Arc::new(RwLock::new(Vec::new())),
-        }
-    }
-}
-
-impl Default for MockVenueRepository {
-    fn default() -> Self {
-        Self::new()
+        Self::default()
     }
 }
 
@@ -30,7 +22,7 @@ impl VenueRepository for MockVenueRepository {
             .venues
             .write()
             .map_err(|_| worker::Error::from("Lock poisoned"))?;
-        venues.push(venue);
+        venues.insert(venue.id.clone(), venue);
         Ok(())
     }
 
@@ -40,41 +32,34 @@ impl VenueRepository for MockVenueRepository {
             .read()
             .map_err(|_| worker::Error::from("Lock poisoned"))?;
         let images = self
-            .images
+            .venue_images
             .read()
             .map_err(|_| worker::Error::from("Lock poisoned"))?;
 
         let mut results = Vec::new();
-        for venue in venues.iter() {
-            let venue_images: Vec<VenueImageEntity> = images
-                .iter()
-                .filter(|img| img.venue_id == venue.id)
-                .cloned()
-                .collect();
+        for venue in venues.values() {
+            let venue_images = images.get(&venue.id).cloned().unwrap_or_default();
             results.push((venue.clone(), venue_images));
         }
+
         Ok(results)
     }
 
     async fn get_venue_with_images(
         &self,
-        id: String,
+        id: VenueId,
     ) -> Result<Option<(VenueEntity, Vec<VenueImageEntity>)>> {
         let venues = self
             .venues
             .read()
             .map_err(|_| worker::Error::from("Lock poisoned"))?;
         let images = self
-            .images
+            .venue_images
             .read()
             .map_err(|_| worker::Error::from("Lock poisoned"))?;
 
-        if let Some(venue) = venues.iter().find(|v| v.id == id) {
-            let venue_images: Vec<VenueImageEntity> = images
-                .iter()
-                .filter(|img| img.venue_id == id)
-                .cloned()
-                .collect();
+        if let Some(venue) = venues.get(&id) {
+            let venue_images = images.get(&id).cloned().unwrap_or_default();
             Ok(Some((venue.clone(), venue_images)))
         } else {
             Ok(None)
@@ -83,10 +68,11 @@ impl VenueRepository for MockVenueRepository {
 
     async fn save_venue_image(&self, image: VenueImageEntity) -> Result<()> {
         let mut images = self
-            .images
+            .venue_images
             .write()
             .map_err(|_| worker::Error::from("Lock poisoned"))?;
-        images.push(image);
+        let venue_images = images.entry(image.venue_id.clone()).or_default();
+        venue_images.push(image);
         Ok(())
     }
 }

@@ -1,3 +1,4 @@
+use crate::models::entities::{UserId, VenueId, VenueImageId};
 use crate::models::{
     ImageUploadCompleteDTO, ImageUploadURLResponseDTO, VenueDTO, VenueEntity, VenueImageEntity,
     VenueInputDTO,
@@ -20,30 +21,30 @@ impl<R: VenueRepository, S: ImageStorage> VenueService<R, S> {
         Ok(items.into_iter().map(VenueDTO::from).collect())
     }
 
-    pub async fn create_venue(&self, input: VenueInputDTO) -> Result<()> {
+    pub async fn create_venue(&self, input: VenueInputDTO) -> Result<VenueId> {
+        let id = VenueId::new_v7();
         let entity = VenueEntity {
-            // TODO: Generate a real UUID for the venue
-            id: "temp-id".to_string(),
+            id: id.clone(),
             name: input.name,
             location: input.location,
             capacity: input.capacity,
             // TODO: Get the actual owner_id from the authenticated user context
-            owner_id: "owner-1".to_string(),
+            owner_id: UserId("owner-1".to_string()),
         };
-        self.repo.save_venue(entity).await
+        self.repo.save_venue(entity).await?;
+        Ok(id)
     }
 
     pub async fn get_upload_url(&self, venue_id: &str) -> Result<ImageUploadURLResponseDTO> {
-        // TODO: Generate a real UUID for the image
-        let image_id = "img-temp-id".to_string();
+        let image_id = VenueImageId::new_v7();
         let upload_url = self
             .storage
-            .generate_upload_url(venue_id, &image_id)
+            .generate_upload_url(venue_id, &image_id.0)
             .await?;
 
         Ok(ImageUploadURLResponseDTO {
             upload_url,
-            image_id,
+            image_id: image_id.0,
         })
     }
 
@@ -58,8 +59,8 @@ impl<R: VenueRepository, S: ImageStorage> VenueService<R, S> {
             .await?;
 
         let image_entity = VenueImageEntity {
-            id: data.image_id,
-            venue_id: venue_id.to_string(),
+            id: VenueImageId(data.image_id),
+            venue_id: VenueId(venue_id.to_string()),
             url: public_url,
         };
 
@@ -92,6 +93,7 @@ mod tests {
         let venues = service.list_venues().await.unwrap();
         assert_eq!(venues.len(), 1);
         assert_eq!(venues[0].name, "Test Venue");
+        assert!(!venues[0].id.is_empty());
     }
 
     #[tokio::test]
@@ -123,17 +125,18 @@ mod tests {
             .await
             .unwrap();
 
+        let venues = service.list_venues().await.unwrap();
+        let venue_id = &venues[0].id;
+
         let complete_data = ImageUploadCompleteDTO {
             image_id: "test-img-id".to_string(),
             filename: "test.jpg".to_string(),
         };
 
-        let result = service.complete_upload("temp-id", complete_data).await;
+        let result = service.complete_upload(venue_id, complete_data).await;
         assert!(result.is_ok());
 
         let venues = service.list_venues().await.unwrap();
-        // Since create_venue currently uses "temp-id" and list_venues returns all,
-        // we check the first venue's images.
         assert_eq!(venues[0].images.len(), 1);
         assert!(venues[0].images[0].url.contains("public/test-img-id"));
     }

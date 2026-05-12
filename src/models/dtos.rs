@@ -50,11 +50,11 @@ impl From<(VenueEntity, Vec<VenueImageEntity>)> for VenueDTO {
     fn from(data: (VenueEntity, Vec<VenueImageEntity>)) -> Self {
         let (entity, images) = data;
         Self {
-            id: entity.id,
+            id: entity.id.0,
             name: entity.name,
             location: entity.location,
             capacity: entity.capacity,
-            owner_id: entity.owner_id,
+            owner_id: entity.owner_id.0,
             images: images.into_iter().map(VenueImageDTO::from).collect(),
         }
     }
@@ -63,7 +63,7 @@ impl From<(VenueEntity, Vec<VenueImageEntity>)> for VenueDTO {
 impl From<VenueImageEntity> for VenueImageDTO {
     fn from(entity: VenueImageEntity) -> Self {
         Self {
-            id: entity.id,
+            id: entity.id.0,
             url: entity.url,
         }
     }
@@ -72,9 +72,9 @@ impl From<VenueImageEntity> for VenueImageDTO {
 impl From<BookingEntity> for BookingDTO {
     fn from(entity: BookingEntity) -> Self {
         Self {
-            id: entity.id,
-            venue_id: entity.venue_id,
-            user_id: entity.user_id,
+            id: entity.id.0,
+            venue_id: entity.venue_id.0,
+            user_id: entity.user_id.0,
             start_time: entity.start_time,
             end_time: entity.end_time,
         }
