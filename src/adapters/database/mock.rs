@@ -56,7 +56,10 @@ impl VenueRepository for MockVenueRepository {
         Ok(results)
     }
 
-    async fn get_venue_with_images(&self, id: String) -> Result<Option<(VenueEntity, Vec<VenueImageEntity>)>> {
+    async fn get_venue_with_images(
+        &self,
+        id: String,
+    ) -> Result<Option<(VenueEntity, Vec<VenueImageEntity>)>> {
         let venues = self
             .venues
             .read()

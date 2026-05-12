@@ -1,4 +1,7 @@
-use crate::models::{ImageUploadCompleteDTO, ImageUploadURLResponseDTO, VenueDTO, VenueEntity, VenueImageEntity, VenueInputDTO};
+use crate::models::{
+    ImageUploadCompleteDTO, ImageUploadURLResponseDTO, VenueDTO, VenueEntity, VenueImageEntity,
+    VenueInputDTO,
+};
 use crate::ports::{ImageStorage, VenueRepository};
 use worker::Result;
 
@@ -30,23 +33,33 @@ impl<R: VenueRepository, S: ImageStorage> VenueService<R, S> {
 
     pub async fn get_upload_url(&self, venue_id: &str) -> Result<ImageUploadURLResponseDTO> {
         let image_id = "img-temp-id".to_string(); // In a real app, generate a UUID
-        let upload_url = self.storage.generate_upload_url(venue_id, &image_id).await?;
-        
+        let upload_url = self
+            .storage
+            .generate_upload_url(venue_id, &image_id)
+            .await?;
+
         Ok(ImageUploadURLResponseDTO {
             upload_url,
             image_id,
         })
     }
 
-    pub async fn complete_upload(&self, venue_id: &str, data: ImageUploadCompleteDTO) -> Result<()> {
-        let public_url = self.storage.get_public_url(venue_id, &data.image_id).await?;
-        
+    pub async fn complete_upload(
+        &self,
+        venue_id: &str,
+        data: ImageUploadCompleteDTO,
+    ) -> Result<()> {
+        let public_url = self
+            .storage
+            .get_public_url(venue_id, &data.image_id)
+            .await?;
+
         let image_entity = VenueImageEntity {
             id: data.image_id,
             venue_id: venue_id.to_string(),
             url: public_url,
         };
-        
+
         self.repo.save_venue_image(image_entity).await
     }
 }
@@ -56,7 +69,7 @@ mod tests {
     use super::*;
     use crate::adapters::database::MockVenueRepository;
     use crate::adapters::storage::mock::MockImageStorage;
-    use crate::models::{VenueInputDTO, ImageUploadCompleteDTO};
+    use crate::models::{ImageUploadCompleteDTO, VenueInputDTO};
 
     #[tokio::test]
     async fn test_create_venue() {
@@ -98,11 +111,14 @@ mod tests {
         let service = VenueService::new(repo, storage);
 
         // First create a venue
-        service.create_venue(VenueInputDTO {
-            name: "Test Venue".to_string(),
-            location: "Test Location".to_string(),
-            capacity: 100,
-        }).await.unwrap();
+        service
+            .create_venue(VenueInputDTO {
+                name: "Test Venue".to_string(),
+                location: "Test Location".to_string(),
+                capacity: 100,
+            })
+            .await
+            .unwrap();
 
         let complete_data = ImageUploadCompleteDTO {
             image_id: "test-img-id".to_string(),

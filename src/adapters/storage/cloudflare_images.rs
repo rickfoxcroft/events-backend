@@ -58,7 +58,7 @@ impl ImageStorage for CloudflareImagesStorage {
         }
 
         let data: CFDirectUploadResponse = response.json().await?;
-        
+
         if !data.success {
             return Err(Error::from("Cloudflare API returned success: false"));
         }

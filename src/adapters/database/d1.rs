@@ -30,11 +30,17 @@ impl VenueRepository for D1VenueRepository {
     }
 
     async fn list_venues(&self) -> Result<Vec<(VenueEntity, Vec<VenueImageEntity>)>> {
-        let venues = self.db.prepare("SELECT * FROM venues").all().await?.results::<VenueEntity>()?;
+        let venues = self
+            .db
+            .prepare("SELECT * FROM venues")
+            .all()
+            .await?
+            .results::<VenueEntity>()?;
         let mut results = Vec::new();
 
         for venue in venues {
-            let images = self.db
+            let images = self
+                .db
                 .prepare("SELECT * FROM venue_images WHERE venue_id = ?")
                 .bind(&[venue.id.clone().into()])?
                 .all()
@@ -46,15 +52,20 @@ impl VenueRepository for D1VenueRepository {
         Ok(results)
     }
 
-    async fn get_venue_with_images(&self, id: String) -> Result<Option<(VenueEntity, Vec<VenueImageEntity>)>> {
-        let venue = self.db
+    async fn get_venue_with_images(
+        &self,
+        id: String,
+    ) -> Result<Option<(VenueEntity, Vec<VenueImageEntity>)>> {
+        let venue = self
+            .db
             .prepare("SELECT * FROM venues WHERE id = ?")
             .bind(&[id.clone().into()])?
             .first::<VenueEntity>(None)
             .await?;
 
         if let Some(venue) = venue {
-            let images = self.db
+            let images = self
+                .db
                 .prepare("SELECT * FROM venue_images WHERE venue_id = ?")
                 .bind(&[id.into()])?
                 .all()
@@ -69,11 +80,7 @@ impl VenueRepository for D1VenueRepository {
     async fn save_venue_image(&self, image: VenueImageEntity) -> Result<()> {
         self.db
             .prepare("INSERT INTO venue_images (id, venue_id, url) VALUES (?, ?, ?)")
-            .bind(&[
-                image.id.into(),
-                image.venue_id.into(),
-                image.url.into(),
-            ])?
+            .bind(&[image.id.into(), image.venue_id.into(), image.url.into()])?
             .run()
             .await?;
         Ok(())

@@ -1,7 +1,7 @@
 use cucumber::{given, then, when, World};
 use event_app_backend::adapters::database::MockVenueRepository;
 use event_app_backend::adapters::storage::mock::MockImageStorage;
-use event_app_backend::models::{VenueDTO, VenueInputDTO, ImageUploadCompleteDTO};
+use event_app_backend::models::{ImageUploadCompleteDTO, VenueDTO, VenueInputDTO};
 use event_app_backend::services::VenueService;
 
 #[derive(Debug, World)]
@@ -79,19 +79,27 @@ async fn the_following_venues_exist_with_images(
             .create_venue(input)
             .await
             .expect("Failed to create venue");
-        
+
         // Note: VenueService currently uses "temp-id"
         let venue_id = "temp-id";
 
         for img_name in images_str.split(',') {
-            let upload_resp = world.service().get_upload_url(venue_id).await.expect("Failed to get upload url");
-            
+            let upload_resp = world
+                .service()
+                .get_upload_url(venue_id)
+                .await
+                .expect("Failed to get upload url");
+
             let complete_data = ImageUploadCompleteDTO {
                 image_id: upload_resp.image_id,
                 filename: img_name.trim().to_string(),
             };
-            
-            world.service().complete_upload(venue_id, complete_data).await.expect("Failed to complete upload");
+
+            world
+                .service()
+                .complete_upload(venue_id, complete_data)
+                .await
+                .expect("Failed to complete upload");
         }
     }
 }

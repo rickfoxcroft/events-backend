@@ -1,7 +1,7 @@
 use cucumber::{given, then, when, World};
 use event_app_backend::adapters::database::MockVenueRepository;
 use event_app_backend::adapters::storage::mock::MockImageStorage;
-use event_app_backend::models::{VenueInputDTO, ImageUploadCompleteDTO};
+use event_app_backend::models::{ImageUploadCompleteDTO, VenueInputDTO};
 use event_app_backend::services::VenueService;
 
 #[derive(Debug, World)]
@@ -60,7 +60,7 @@ async fn i_submit_venue_details(world: &mut VenueWorld, step: &cucumber::gherkin
             .create_venue(input)
             .await
             .expect("Failed to create venue");
-        
+
         // Note: VenueService currently uses "temp-id" as a placeholder
         world.last_venue_id = Some("temp-id".to_string());
         world.last_response_status = Some(201);
@@ -70,19 +70,30 @@ async fn i_submit_venue_details(world: &mut VenueWorld, step: &cucumber::gherkin
 #[when(expr = "I upload the following images:")]
 async fn i_upload_images(world: &mut VenueWorld, step: &cucumber::gherkin::Step) {
     let table = step.table().expect("Step must have a table");
-    let venue_id = world.last_venue_id.clone().expect("No venue created to upload images to");
+    let venue_id = world
+        .last_venue_id
+        .clone()
+        .expect("No venue created to upload images to");
 
     for row in table.rows.iter().skip(1) {
         let filename = &row[0];
-        
-        let upload_resp = world.service().get_upload_url(&venue_id).await.expect("Failed to get upload url");
-        
+
+        let upload_resp = world
+            .service()
+            .get_upload_url(&venue_id)
+            .await
+            .expect("Failed to get upload url");
+
         let complete_data = ImageUploadCompleteDTO {
             image_id: upload_resp.image_id,
             filename: filename.clone(),
         };
-        
-        world.service().complete_upload(&venue_id, complete_data).await.expect("Failed to complete upload");
+
+        world
+            .service()
+            .complete_upload(&venue_id, complete_data)
+            .await
+            .expect("Failed to complete upload");
     }
 }
 
@@ -109,9 +120,18 @@ async fn venue_should_have_n_images(world: &mut VenueWorld, name: String, count:
         .list_venues()
         .await
         .expect("Failed to list venues");
-    
-    let venue = venues.iter().find(|v| v.name == name).expect("Venue not found");
-    assert_eq!(venue.images.len(), count, "Expected {} images, found {}", count, venue.images.len());
+
+    let venue = venues
+        .iter()
+        .find(|v| v.name == name)
+        .expect("Venue not found");
+    assert_eq!(
+        venue.images.len(),
+        count,
+        "Expected {} images, found {}",
+        count,
+        venue.images.len()
+    );
 }
 
 #[tokio::test]
