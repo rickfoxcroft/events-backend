@@ -14,6 +14,10 @@ run = "echo 'Tools are managed by mise' && ./scripts/setup-hooks.sh"
 description = "Generate Rust DTOs from TypeSpec"
 run = "tsp compile api.tsp"
 
+[tasks."check:codegen"]
+description = "Verify that generated code matches api.tsp"
+run = "mise run codegen && git diff --exit-code"
+
 [tasks."build"]
 description = "Build the worker"
 run = "worker-build --release"
@@ -24,7 +28,7 @@ run = "cargo test"
 
 [tasks."ci"]
 description = "Run all CI checks"
-depends = ["setup", "lint", "test"]
+depends = ["setup", "check:codegen", "lint", "test"]
 
 [tasks."lint"]
 description = "Run clippy and rustfmt"
