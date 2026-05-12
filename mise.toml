@@ -7,8 +7,8 @@ node = "lts"
 "npm:@typespec/compiler" = "latest"
 
 [tasks."setup"]
-description = "Install project dependencies"
-run = "echo 'Tools are managed by mise'"
+description = "Install project dependencies and setup hooks"
+run = "echo 'Tools are managed by mise' && ./scripts/setup-hooks.sh"
 
 [tasks."codegen"]
 description = "Generate Rust DTOs from TypeSpec"

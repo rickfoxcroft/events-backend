@@ -14,6 +14,12 @@ model VenueDTO {
   location: string;
   capacity: int32;
   owner_id: string;
+  images: VenueImageDTO[];
+}
+
+model VenueImageDTO {
+  id: string;
+  url: string;
 }
 
 model VenueInputDTO {
@@ -22,12 +28,14 @@ model VenueInputDTO {
   capacity: int32;
 }
 
-model BookingDTO {
-  id: string;
-  venue_id: string;
-  user_id: string;
-  start_time: string;
-  end_time: string;
+model ImageUploadURLResponseDTO {
+  upload_url: string;
+  image_id: string;
+}
+
+model ImageUploadCompleteDTO {
+  image_id: string;
+  filename: string;
 }
 
 @route("/venues")
@@ -35,5 +43,13 @@ interface Venues {
   @get list(): VenueDTO[];
   @post create(@body venue: VenueInputDTO): {
     @statusCode statusCode: 201;
+  };
+  
+  @route("/{id}/images/upload-url")
+  @post getUploadUrl(@path id: string): ImageUploadURLResponseDTO;
+
+  @route("/{id}/images/complete")
+  @post completeUpload(@path id: string, @body data: ImageUploadCompleteDTO): {
+    @statusCode statusCode: 200;
   };
 }

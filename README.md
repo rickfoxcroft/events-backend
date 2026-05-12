@@ -15,6 +15,7 @@ This project uses a "Bridge" pattern to separate API contracts from database sto
 - **Cloudflare Workers**: Serverless backend.
 - **Rust**: High performance and safety.
 - **D1 Database**: Cloudflare's serverless SQL database.
+- **Cloudflare Images**: Optimized image storage and delivery with built-in resizing.
 - **TypeSpec**: API contract definition.
 
 ## Architecture Visualization
@@ -30,22 +31,26 @@ graph TD
         DTOs[src/models/dtos.rs - DTOs]
         Router[src/lib.rs - Router]
         Repo[src/adapters/database - Repository]
+        Storage[src/adapters/storage - Image Storage]
         Entities[src/models/entities.rs - Entities]
 
         Contract -- generates --> DTOs
         Router -- uses --> DTOs
         Router -- calls --> Repo
+        Router -- calls --> Storage
         Repo -- maps --> Entities
         Entities -- Bridge: From/Into --> DTOs
     end
 
     subgraph "Cloudflare Storage"
         D1[(D1 SQL Database)]
+        CFImages[Cloudflare Images API]
         Schema[schema.sql]
     end
 
     Bruno -- HTTP Request --> Router
     Repo -- SQL Query --> D1
+    Storage -- API Request --> CFImages
     Schema -- defines --> D1
 ```
 

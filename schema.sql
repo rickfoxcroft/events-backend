@@ -6,6 +6,13 @@ CREATE TABLE IF NOT EXISTS venues (
     owner_id TEXT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS venue_images (
+    id TEXT PRIMARY KEY,
+    venue_id TEXT NOT NULL,
+    url TEXT NOT NULL,
+    FOREIGN KEY (venue_id) REFERENCES venues(id) ON DELETE CASCADE
+);
+
 CREATE TABLE IF NOT EXISTS bookings (
     id TEXT PRIMARY KEY,
     venue_id TEXT NOT NULL,

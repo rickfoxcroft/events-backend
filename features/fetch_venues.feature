@@ -17,3 +17,11 @@ Feature: Fetch Venue List
     Then I should see 2 venues in the list
     And I should see "Grand Ballroom" in the list of venues
     And I should see "Tech Hub" in the list of venues
+
+  Scenario: Viewing venues with images
+    Given the following venues exist with images:
+      | Name       | Location | Capacity | Images               |
+      | Sky Lounge | Midtown  |      150 | lounge1.jpg, lounge2.png |
+    When I request the list of all venues
+    Then I should see "Sky Lounge" in the list of venues
+    And "Sky Lounge" should display its images
