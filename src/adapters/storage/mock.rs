@@ -1,4 +1,5 @@
 use crate::ports::storage::ImageStorage;
+use async_trait::async_trait;
 use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
 use worker::Result;
@@ -24,6 +25,7 @@ impl Default for MockImageStorage {
     }
 }
 
+#[async_trait(?Send)]
 impl ImageStorage for MockImageStorage {
     async fn generate_upload_url(&self, image_id: &str) -> Result<String> {
         let url = format!("{}/upload/{}", self.public_url_prefix, image_id);

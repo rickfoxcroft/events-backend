@@ -23,7 +23,7 @@ impl Default for FetchVenueWorld {
 
 impl FetchVenueWorld {
     fn service(&self) -> VenueService<MockVenueRepository, MockImageStorage> {
-        VenueService::new(self.repo.clone(), self.storage.clone())
+        VenueService::new(self.repo.clone(), Box::new(self.storage.clone()))
     }
 }
 

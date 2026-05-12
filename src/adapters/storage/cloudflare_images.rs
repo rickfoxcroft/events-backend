@@ -1,4 +1,5 @@
 use crate::ports::storage::ImageStorage;
+use async_trait::async_trait;
 use serde::Deserialize;
 use worker::*;
 
@@ -33,6 +34,7 @@ struct CFDirectUploadResult {
     upload_url: String,
 }
 
+#[async_trait(?Send)]
 impl ImageStorage for CloudflareImagesConfig {
     async fn generate_upload_url(&self, _image_id: &str) -> Result<String> {
         let url = format!(
