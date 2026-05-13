@@ -1,35 +1,28 @@
 use cucumber::{given, then, when, World};
-use event_app_backend::adapters::database::MockVenueRepository;
-use event_app_backend::adapters::storage::mock::MockImageStorage;
-use event_app_backend::models::{VenueDTO, VenueInputDTO};
-use event_app_backend::services::VenueService;
+use event_app_backend::models::{ImageUploadURLResponseDTO, VenueDTO, VenueInputDTO};
+use std::env;
 
 #[derive(Debug, World)]
 pub struct FetchVenueWorld {
-    repo: MockVenueRepository,
-    storage: MockImageStorage,
+    client: reqwest::Client,
+    base_url: String,
     fetched_venues: Vec<VenueDTO>,
 }
 
 impl Default for FetchVenueWorld {
     fn default() -> Self {
+        let base_url = env::var("TEST_API_URL").unwrap_or_else(|_| "http://127.0.0.1:8787".to_string());
         Self {
-            repo: MockVenueRepository::new(),
-            storage: MockImageStorage::new(),
+            client: reqwest::Client::new(),
+            base_url,
             fetched_venues: Vec::new(),
         }
     }
 }
 
-impl FetchVenueWorld {
-    fn service(&self) -> VenueService<MockVenueRepository, MockImageStorage> {
-        VenueService::new(self.repo.clone(), Box::new(self.storage.clone()))
-    }
-}
-
 #[given(expr = "there are no venues listed on the platform")]
 async fn there_are_no_venues(_world: &mut FetchVenueWorld) {
-    // Repository is empty by default
+    // This is now handled by the before hook, but we keep the step for Gherkin compatibility
 }
 
 #[given(expr = "the following venues exist:")]
@@ -48,9 +41,12 @@ async fn the_following_venues_exist(world: &mut FetchVenueWorld, step: &cucumber
             image_ids: Vec::new(),
         };
 
+        let url = format!("{}/venues", world.base_url);
         world
-            .service()
-            .create_venue(input)
+            .client
+            .post(&url)
+            .json(&input)
+            .send()
             .await
             .expect("Failed to create venue");
     }
@@ -71,11 +67,15 @@ async fn the_following_venues_exist_with_images(
 
         let mut image_ids = Vec::new();
         for _ in images_str.split(',') {
-            let upload_resp = world
-                .service()
-                .get_upload_url()
+            let url = format!("{}/images/upload-url", world.base_url);
+            let resp = world
+                .client
+                .post(&url)
+                .send()
                 .await
                 .expect("Failed to get upload url");
+            
+            let upload_resp: ImageUploadURLResponseDTO = resp.json().await.expect("Failed to parse upload url response");
             image_ids.push(upload_resp.image_id);
         }
 
@@ -86,9 +86,12 @@ async fn the_following_venues_exist_with_images(
             image_ids,
         };
 
+        let url = format!("{}/venues", world.base_url);
         world
-            .service()
-            .create_venue(input)
+            .client
+            .post(&url)
+            .json(&input)
+            .send()
             .await
             .expect("Failed to create venue");
     }
@@ -96,11 +99,15 @@ async fn the_following_venues_exist_with_images(
 
 #[when(expr = "I request the list of all venues")]
 async fn i_request_all_venues(world: &mut FetchVenueWorld) {
-    world.fetched_venues = world
-        .service()
-        .list_venues()
+    let url = format!("{}/venues", world.base_url);
+    let resp = world
+        .client
+        .get(&url)
+        .send()
         .await
         .expect("Failed to list venues");
+    
+    world.fetched_venues = resp.json().await.expect("Failed to parse venues list");
 }
 
 #[then(expr = "I should receive an empty list of venues")]
@@ -131,5 +138,23 @@ async fn venue_should_display_images(world: &mut FetchVenueWorld, name: String) 
 
 #[tokio::test]
 async fn test_venue_fetching() {
-    FetchVenueWorld::run("features/fetch_venues.feature").await;
+    FetchVenueWorld::cucumber()
+        .max_concurrent_scenarios(1)
+        .before(|_, _, _, _| {
+            Box::pin(async move {
+                let _ = std::process::Command::new("wrangler")
+                    .args(&[
+                        "d1",
+                        "execute",
+                        "event-app-db",
+                        "--local",
+                        "--command",
+                        "DELETE FROM venue_images; DELETE FROM venues;",
+                        "--yes",
+                    ])
+                    .status();
+            })
+        })
+        .run("features/fetch_venues.feature")
+        .await;
 }

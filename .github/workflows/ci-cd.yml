@@ -12,7 +12,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: jdx/mise-action@v2
-      - name: Run CI
+      - name: Initialize Local DB
+        run: mise run db:migrate:local
+      - name: Start Local Server
+        run: ENVIRONMENT=local mise run dev &
+      - name: Wait for Server
+        run: |
+          timeout 60s bash -c 'until curl -s http://localhost:8787/ > /dev/null; do echo "Waiting for server..."; sleep 2; done'
+      - name: Run CI (Lint, Unit & E2E Tests)
         run: mise run ci
 
   deploy:

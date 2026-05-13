@@ -13,19 +13,25 @@ Unit tests focus on individual components, such as services and adapters, using 
     mise run test
     ```
 
-## 2. Integration Tests (Cucumber)
+## 2. End-to-End (E2E) Tests (Cucumber)
 
-Acceptance tests defined in Gherkin that verify business requirements.
+Acceptance tests defined in Gherkin that verify business requirements by making real HTTP requests against a running instance of the application.
 
 *   **Features**: `features/*.feature`
 *   **Step Definitions**: `tests/*.rs`
+*   **Requirements**: Requires the local dev server to be running (see below).
 *   **Run**:
     ```bash
+    # 1. Start dev server in one terminal
+    ENVIRONMENT=local mise run dev
+
+    # 2. Run tests in another terminal
     cargo test --test venue_fetching
     cargo test --test venue_listing
     ```
+*   **Configuration**: You can point the tests to a different URL using the `TEST_API_URL` environment variable (defaults to `http://127.0.0.1:8787`).
 
-## 3. Local End-to-End Testing (Miniflare)
+## 3. Local Development (Miniflare)
 
 Test the full application stack locally using Cloudflare's emulation engine.
 
@@ -56,7 +62,9 @@ Our GitHub Actions workflow (`.github/workflows/ci-cd.yml`) automatically runs t
 1.  **Setup**: Installs dependencies.
 2.  **Codegen Check**: Verifies that `src/models/dtos.rs` is in sync with `api.tsp`.
 3.  **Linting**: Runs `cargo clippy` and `cargo fmt`.
-4.  **Tests**: Runs all Rust unit and integration tests.
+4.  **Tests**: 
+    *   Runs unit tests.
+    *   Starts a local Miniflare instance and runs the Cucumber E2E tests against it.
 
 ---
 

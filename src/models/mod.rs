@@ -1,3 +1,4 @@
+pub mod config;
 pub mod dtos;
 pub mod entities;
 

@@ -1,6 +1,17 @@
 name = "event-app-backend"
-main = "src/lib.rs"
+main = "build/worker/shim.mjs"
 compatibility_date = "2024-04-03"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "event-app-db"
+database_id = "01863c26-df21-4b99-98f7-c172c693473e"
+
+[vars]
+ENVIRONMENT = "local"
+CF_ACCOUNT_ID = "local-account-id"
+CF_IMAGES_ACCOUNT_HASH = "local-account-hash"
+# CF_IMAGES_API_TOKEN is a secret, so it should be in .dev.vars for local dev
 
 [env.production]
 [[env.production.d1_databases]]

@@ -3,13 +3,13 @@ use crate::models::{ImageUploadURLResponseDTO, VenueDTO, VenueInputDTO};
 use crate::ports::{ImageStorage, VenueRepository};
 use worker::Result;
 
-pub struct VenueService<R: VenueRepository, S: ImageStorage + ?Sized> {
+pub struct VenueService<R: VenueRepository, S: ImageStorage> {
     repo: R,
-    storage: Box<S>,
+    storage: S,
 }
 
-impl<R: VenueRepository, S: ImageStorage + ?Sized> VenueService<R, S> {
-    pub fn new(repo: R, storage: Box<S>) -> Self {
+impl<R: VenueRepository, S: ImageStorage> VenueService<R, S> {
+    pub fn new(repo: R, storage: S) -> Self {
         Self { repo, storage }
     }
 
@@ -65,7 +65,7 @@ mod tests {
     #[tokio::test]
     async fn test_create_venue() {
         let repo = MockVenueRepository::new();
-        let storage = Box::new(MockImageStorage::new());
+        let storage = MockImageStorage::new();
         let service = VenueService::new(repo, storage);
 
         let input = VenueInputDTO {
@@ -87,7 +87,7 @@ mod tests {
     #[tokio::test]
     async fn test_get_upload_url() {
         let repo = MockVenueRepository::new();
-        let storage = Box::new(MockImageStorage::new());
+        let storage = MockImageStorage::new();
         let service = VenueService::new(repo, storage);
 
         let result = service.get_upload_url().await;
