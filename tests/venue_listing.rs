@@ -14,7 +14,8 @@ pub struct VenueWorld {
 
 impl Default for VenueWorld {
     fn default() -> Self {
-        let base_url = env::var("TEST_API_URL").unwrap_or_else(|_| "http://127.0.0.1:8787".to_string());
+        let base_url =
+            env::var("TEST_API_URL").unwrap_or_else(|_| "http://127.0.0.1:8787".to_string());
         Self {
             client: reqwest::Client::new(),
             base_url,
@@ -43,9 +44,12 @@ async fn i_upload_images(world: &mut VenueWorld, step: &cucumber::gherkin::Step)
             .send()
             .await
             .expect("Failed to get upload url");
-        
+
         assert_eq!(resp.status(), 200);
-        let upload_resp: ImageUploadURLResponseDTO = resp.json().await.expect("Failed to parse upload url response");
+        let upload_resp: ImageUploadURLResponseDTO = resp
+            .json()
+            .await
+            .expect("Failed to parse upload url response");
         world.uploaded_image_ids.push(upload_resp.image_id);
     }
 }
@@ -76,9 +80,9 @@ async fn i_submit_venue_details(world: &mut VenueWorld, step: &cucumber::gherkin
             .expect("Failed to create venue");
 
         world.last_response_status = Some(resp.status().as_u16());
-        
-        // Since we don't return the ID in the response body yet (just 201), 
-        // we might need to find it in the list if we want to track it, 
+
+        // Since we don't return the ID in the response body yet (just 201),
+        // we might need to find it in the list if we want to track it,
         // but for these tests, name is used as the identifier in subsequent steps.
     }
 }
@@ -97,7 +101,7 @@ async fn i_should_see_venue_in_list(world: &mut VenueWorld, name: String) {
         .send()
         .await
         .expect("Failed to list venues");
-    
+
     assert_eq!(resp.status(), 200);
     let venues: Vec<VenueDTO> = resp.json().await.expect("Failed to parse venues list");
     let exists = venues.iter().any(|v| v.name == name);
@@ -113,7 +117,7 @@ async fn venue_should_have_images(world: &mut VenueWorld, name: String, count: u
         .send()
         .await
         .expect("Failed to list venues");
-    
+
     assert_eq!(resp.status(), 200);
     let venues: Vec<VenueDTO> = resp.json().await.expect("Failed to parse venues list");
 

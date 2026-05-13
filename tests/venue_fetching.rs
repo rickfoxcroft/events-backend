@@ -11,7 +11,8 @@ pub struct FetchVenueWorld {
 
 impl Default for FetchVenueWorld {
     fn default() -> Self {
-        let base_url = env::var("TEST_API_URL").unwrap_or_else(|_| "http://127.0.0.1:8787".to_string());
+        let base_url =
+            env::var("TEST_API_URL").unwrap_or_else(|_| "http://127.0.0.1:8787".to_string());
         Self {
             client: reqwest::Client::new(),
             base_url,
@@ -74,8 +75,11 @@ async fn the_following_venues_exist_with_images(
                 .send()
                 .await
                 .expect("Failed to get upload url");
-            
-            let upload_resp: ImageUploadURLResponseDTO = resp.json().await.expect("Failed to parse upload url response");
+
+            let upload_resp: ImageUploadURLResponseDTO = resp
+                .json()
+                .await
+                .expect("Failed to parse upload url response");
             image_ids.push(upload_resp.image_id);
         }
 
@@ -106,7 +110,7 @@ async fn i_request_all_venues(world: &mut FetchVenueWorld) {
         .send()
         .await
         .expect("Failed to list venues");
-    
+
     world.fetched_venues = resp.json().await.expect("Failed to parse venues list");
 }
 

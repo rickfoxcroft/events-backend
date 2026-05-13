@@ -9,7 +9,7 @@ pub struct AppConfig {
 
 impl AppConfig {
     pub fn from_env(env: &Env) -> Result<Self> {
-        // All environment variables are now mandatory. 
+        // All environment variables are now mandatory.
         // The app will fail to start if any are missing.
         Ok(Self {
             environment: env.var("ENVIRONMENT")?.to_string(),

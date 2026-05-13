@@ -25,7 +25,7 @@ struct AppState {
 #[event(fetch)]
 pub async fn main(req: Request, env: Env, _ctx: worker::Context) -> Result<Response> {
     console_error_panic_hook::set_once();
-    
+
     let config = AppConfig::from_env(&env)?;
     let storage = if config.environment == "local" {
         StorageProvider::Local(LocalImageStorage::new("http://localhost:8787"))
@@ -63,5 +63,3 @@ pub async fn main(req: Request, env: Env, _ctx: worker::Context) -> Result<Respo
         .run(req, env)
         .await
 }
-
-
