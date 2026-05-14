@@ -11,19 +11,32 @@ description = "Install project dependencies and setup hooks"
 run = "echo 'Tools are managed by mise' && ./scripts/setup-hooks.sh"
 
 [tasks."codegen"]
-description = "Generate Rust DTOs from TypeSpec"
-run = "tsp compile api.tsp"
+description = "Generate Rust DTOs and Frontend Types from TypeSpec"
+run = """
+tsp compile api.tsp
+npm run codegen:types --workspace=web
+"""
 
 [tasks."check:codegen"]
 description = "Verify that generated code matches api.tsp"
 run = "mise run codegen && git diff --exit-code"
 
-[tasks."build"]
+[tasks."build:backend"]
 description = "Build the worker"
+dir = "packages/backend"
 run = "worker-build --release"
 
+[tasks."build:frontend"]
+description = "Build the web app"
+run = "npm run build --workspace=web"
+
+[tasks."build"]
+description = "Build everything"
+depends = ["build:backend", "build:frontend"]
+
 [tasks."test"]
-description = "Run all tests"
+description = "Run backend tests"
+dir = "packages/backend"
 run = "cargo test"
 
 [tasks."ci"]
@@ -32,20 +45,45 @@ depends = ["setup", "check:codegen", "lint", "test"]
 
 [tasks."lint"]
 description = "Run clippy and rustfmt"
-run = "cargo clippy -- -D warnings && cargo fmt --check"
+run = "cargo clippy --all-targets -- -D warnings && cargo fmt --check"
 
-[tasks."dev"]
+[tasks."dev:backend"]
 description = "Run the worker locally"
+dir = "packages/backend"
 run = "wrangler dev"
 
-[tasks."deploy"]
+[tasks."dev:frontend"]
+description = "Run the web app locally"
+run = "npm run dev --workspace=web"
+
+[tasks."dev"]
+description = "Run everything locally"
+run = """
+mise run dev:backend &
+mise run dev:frontend
+wait
+"""
+
+[tasks."deploy:backend"]
 description = "Deploy the worker to Cloudflare"
+dir = "packages/backend"
 run = "wrangler deploy --env production"
 
+[tasks."deploy:frontend"]
+description = "Deploy the web app to Cloudflare Pages"
+dir = "packages/web"
+run = "npx wrangler pages deploy dist"
+
+[tasks."deploy"]
+description = "Deploy everything"
+depends = ["deploy:backend", "deploy:frontend"]
+
 [tasks."db:migrate:local"]
-description = "Apply D1 migrations locally"
-run = "wrangler d1 migrations apply event-app-db --local"
+description = "Apply D1 schema locally"
+dir = "packages/backend"
+run = "wrangler d1 execute event-app-db --local --file=schema.sql --yes"
 
 [tasks."db:migrate:remote"]
-description = "Apply D1 migrations to production"
-run = "wrangler d1 migrations apply event-app-db --remote --env production"
+description = "Apply D1 schema to production"
+dir = "packages/backend"
+run = "wrangler d1 execute event-app-db --remote --file=schema.sql --yes --env production"

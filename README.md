@@ -1,176 +1,119 @@
-# Event Venue Backend
+# Event Venue Booking Platform
 
-Backend for an event venue search and booking platform, built with Rust and Cloudflare Workers.
+A full-stack event venue search and booking platform built with Rust, Astro, and Cloudflare.
 
-## Workflow: Contract-First & Database-First
+## Project Structure
 
-This project uses a "Bridge" pattern to separate API contracts from database storage:
+This project is a monorepo organized into two main packages:
 
-1. **Contract (`api.tsp`)**: Defined using [TypeSpec](https://typespec.io/). This generates the `RustDTOs`.
-2. **Storage (`schema.sql`)**: Defined using SQL for Cloudflare D1. This generates the `RustEntities`.
-3. **The Bridge**: In `src/models/dtos.rs`, we implement `impl From<Entity> for DTO` to map database models to API responses.
+- **`packages/backend`**: A Cloudflare Worker built with Rust and the `worker` crate.
+- **`packages/web`**: An Astro frontend using Preact and Tailwind CSS, hosted on Cloudflare Pages.
 
-## Features
+## Shared API Contract
 
-- **Cloudflare Workers**: Serverless backend.
-- **Rust**: High performance and safety.
-- **D1 Database**: Cloudflare's serverless SQL database.
-- **Cloudflare Images**: Optimized image storage and delivery with built-in resizing.
-- **TypeSpec**: API contract definition.
+We use [TypeSpec](https://typespec.io/) as the single source of truth for our API definitions.
+
+1.  **Contract (`api.tsp`)**: Defined at the root.
+2.  **Rust DTOs**: Generated in `packages/backend/src/models/dtos.rs`.
+3.  **Frontend Types**: Generated in `packages/web/src/types/api.d.ts`.
+
+To update all generated code after changing `api.tsp`, run:
+```bash
+mise run codegen
+```
 
 ## Architecture Visualization
 
 ```mermaid
-graph TD
-    subgraph Client
-        Bruno[Bruno API Client]
+graph LR
+    subgraph Contract [1. DESIGN: Contract-First]
+        TSP[[api.tsp]]
     end
 
-    subgraph "Cloudflare Worker (Rust)"
-        Contract[api.tsp - TypeSpec]
-        DTOs[src/models/dtos.rs - DTOs]
-        Router[src/lib.rs - Router]
-        Repo[src/adapters/database - Repository]
-        Storage[src/adapters/storage - Image Storage]
-        Entities[src/models/entities.rs - Entities]
-
-        Contract -- generates --> DTOs
-        Router -- uses --> DTOs
-        Router -- calls --> Repo
-        Router -- calls --> Storage
-        Repo -- maps --> Entities
-        Entities -- Bridge: From/Into --> DTOs
+    subgraph Implementation [2. BUILD: Type-Safe Monorepo]
+        direction TB
+        subgraph Web [Frontend: packages/web]
+            TST[TypeScript Types] --> UI[Astro Islands / Preact]
+        end
+        subgraph Backend [Backend: packages/backend]
+            DTO[Rust DTOs] --> Logic[Worker Logic]
+        end
     end
 
-    subgraph "Cloudflare Storage"
-        D1[(D1 SQL Database)]
-        CFImages[Cloudflare Images API]
-        Schema[schema.sql]
+    subgraph Infrastructure [3. RUN: Cloudflare Ecosystem]
+        Pages[Cloudflare Pages]
+        Worker[Cloudflare Worker]
+        Data[(D1 Database)]
+        Media[Cloudflare Images]
     end
 
-    Bruno -- HTTP Request --> Router
-    Repo -- SQL Query --> D1
-    Storage -- API Request --> CFImages
-    Schema -- defines --> D1
+    %% Flow of Logic and Types
+    TSP == Codegen ==> TST
+    TSP == Codegen ==> DTO
+    
+    UI -- API Requests --> Worker
+    Logic -- Persistence --> Data
+    Logic -- Media Storage --> Media
+
+    %% Deployment Mapping
+    Web -. Hosted .-> Pages
+    Backend -. Executed .-> Worker
 ```
+
+## Features
+
+- **Rust Backend**: High-performance serverless logic on Cloudflare Workers.
+- **Astro Frontend**: Optimized "Islands" architecture for fast page loads.
+- **D1 Database**: Cloudflare's serverless SQL database.
+- **Cloudflare Images**: Integrated image storage and resizing.
+- **Shared Type Safety**: End-to-end type safety from the API contract to the React (Preact) components.
 
 ## Prerequisites
 
-- **Option A: Dev Container (Recommended)**: [Docker Desktop](https://www.docker.com/products/docker-desktop/) or [OrbStack](https://orbstack.dev/) and VS Code with the [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers).
-- **Option B: Manual Setup**: [mise](https://mise.jdx.dev/) for tool version management.
+- [mise](https://mise.jdx.dev/) for tool version management.
+- [Cloudflare Wrangler](https://developers.cloudflare.com/workers/wrangler/install-and-update/) for local development and deployment.
 
 ## Getting Started
 
 ### 1. Environment Configuration
 
-This project uses `.env` files for local configuration and GitHub Secrets for CI/CD.
-
 1.  **Local Environment**: Copy the example file and fill in your values:
-
     ```bash
     cp .env.example .env
     ```
-
-    - `PROD_BASE_URL`: The URL of your deployed Cloudflare Worker (used by Bruno).
-
-2.  **Cloudflare Configuration**: Update `wrangler.toml` with your specific D1 Database IDs:
-    - The top-level `[[d1_databases]]` is for local development.
-    - The `[env.production]` block is for your deployed database.
-
-### 2. API Testing (Bruno)
-
-We use [Bruno](https://www.usebruno.com/) for API testing, with request definitions stored in the `bruno/` directory.
-
-1.  Open the Bruno app.
-2.  Click **Open Collection** and select the `bruno/` folder in this project.
-3.  Select an environment (**Local** or **Production**) from the top-right dropdown.
-4.  If using **Production**, ensure your `.env` file has the correct `PROD_BASE_URL`.
-
-## Local Development
-
-### Using Dev Containers (VS Code/Cursor)
-
-1.  Open the project in VS Code.
-2.  Click **"Reopen in Container"** when prompted (or run `Dev Containers: Reopen in Container` from the Command Palette).
-3.  All tools and dependencies will be automatically installed.
-
-### Manual Setup (CLI)
-
-1.  **Install system dependencies** (Linux-specific, e.g., Ubuntu):
-
+2.  **Database Setup**: Initialize your local D1 database:
     ```bash
-    sudo apt-get install -y libssl-dev pkg-config
+    mise run db:migrate:local
     ```
 
-2.  **Install tools and dependencies**:
+### 2. Development
 
-    ```bash
-    mise install
-    ```
-
-3.  **Generate code and API specs**:
-
-    ```bash
-    mise run codegen
-    ```
-
-    This command generates both the Rust DTOs and the OpenAPI/Swagger specification.
-
-4.  **Run tests**:
-
-    ```bash
-    mise run test
-    ```
-
-5.  **Run the Worker locally**:
-    ```bash
-    mise run dev
-    ```
-
-## API Documentation (Swagger/OpenAPI)
-
-This project uses **TypeSpec** as the source of truth for the API contract.
-
-### Generating the Specification
-
-The OpenAPI 3.0 specification is automatically generated whenever you run the `codegen` task:
-
+Start both the backend and frontend dev servers concurrently:
 ```bash
-mise run codegen
+mise run dev
 ```
 
-### Artifacts
+- **Backend**: `http://localhost:8787`
+- **Frontend**: `http://localhost:4321`
 
-- **Location**: `tsp-output/openapi.yaml`
-- **Format**: OpenAPI 3.0 (YAML)
+### 3. Testing
 
-You can visualize this file by pasting its content into the [Swagger Editor](https://editor.swagger.io/) or by using a local Swagger UI viewer.
+Run backend unit and E2E tests:
+```bash
+mise run test
+```
 
-## Database Migrations (D1)
+## Deployment
 
-To manage your database schema and migrations:
+The project is designed for Cloudflare:
 
-1. **Apply Migrations Locally**:
+- **Backend**: Deployed as a Worker.
+- **Frontend**: Deployed to Cloudflare Pages.
 
-   ```bash
-   mise run db:migrate:local
-   ```
-
-2. **Apply Migrations to Production**:
-
-   ```bash
-   mise run db:migrate:remote
-   ```
-
-> **Note on `wrangler types`**: While `npx wrangler types` is great for generating TypeScript definitions from your bindings, in this Rust project, we manually define our `Entities` in `src/models/entities.rs` to match the D1 schema, ensuring full control over Rust's type system and serialization.
-
-## Project Structure
-
-- `api.tsp`: API contract (TypeSpec).
-- `schema.sql`: Initial database schema.
-- `src/models/entities.rs`: Database models (Entities).
-- `src/models/dtos.rs`: API Data Transfer Objects (DTOs) and conversion logic.
-- `src/lib.rs`: Worker entry point and routing.
+To deploy everything:
+```bash
+mise run deploy
+```
 
 ## License
 

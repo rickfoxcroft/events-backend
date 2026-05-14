@@ -147,7 +147,7 @@ async fn test_venue_fetching() {
         .before(|_, _, _, _| {
             Box::pin(async move {
                 let _ = std::process::Command::new("wrangler")
-                    .args(&[
+                    .args([
                         "d1",
                         "execute",
                         "event-app-db",

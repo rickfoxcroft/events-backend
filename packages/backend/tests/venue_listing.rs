@@ -8,7 +8,6 @@ pub struct VenueWorld {
     base_url: String,
     owner_id: Option<String>,
     uploaded_image_ids: Vec<String>,
-    last_venue_id: Option<String>,
     last_response_status: Option<u16>,
 }
 
@@ -21,7 +20,6 @@ impl Default for VenueWorld {
             base_url,
             owner_id: None,
             uploaded_image_ids: Vec::new(),
-            last_venue_id: None,
             last_response_status: None,
         }
     }
@@ -141,7 +139,7 @@ async fn test_venue_listing() {
         .before(|_, _, _, _| {
             Box::pin(async move {
                 let _ = std::process::Command::new("wrangler")
-                    .args(&[
+                    .args([
                         "d1",
                         "execute",
                         "event-app-db",
