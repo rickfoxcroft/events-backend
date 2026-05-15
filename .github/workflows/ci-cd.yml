@@ -21,7 +21,7 @@ jobs:
 
       - name: Wait for Backend Server
         run: |
-          timeout 60s bash -c 'until curl -s http://localhost:8787/ > /dev/null; do echo "Waiting for server..."; sleep 2; done'
+          timeout 120s bash -c 'until curl -s http://localhost:8787/ > /dev/null; do echo "Waiting for server..."; sleep 5; done'
 
       - name: Run CI (Lint, Unit & E2E Tests)
         run: mise run ci

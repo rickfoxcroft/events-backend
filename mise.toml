@@ -37,7 +37,7 @@ depends = ["build:backend", "build:frontend"]
 [tasks."test"]
 description = "Run backend tests"
 dir = "packages/backend"
-run = "cargo test"
+run = "cargo test -j 1"
 
 [tasks."ci"]
 description = "Run all CI checks"
