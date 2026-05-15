@@ -40,6 +40,16 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        BookingDTO: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            venue_id: string;
+            /** Format: uuid */
+            user_id: string;
+            start_time: string;
+            end_time: string;
+        };
         ImageUploadURLResponseDTO: {
             upload_url: string;
             /** Format: uuid */

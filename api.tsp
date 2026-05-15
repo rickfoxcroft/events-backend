@@ -38,6 +38,17 @@ model ImageUploadURLResponseDTO {
   image_id: string;
 }
 
+model BookingDTO {
+  @format("uuid")
+  id: string;
+  @format("uuid")
+  venue_id: string;
+  @format("uuid")
+  user_id: string;
+  start_time: string;
+  end_time: string;
+}
+
 @route("/venues")
 interface Venues {
   @get list(): VenueDTO[];

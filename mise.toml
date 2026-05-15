@@ -8,7 +8,7 @@ node = "lts"
 
 [tasks."setup"]
 description = "Install project dependencies and setup hooks"
-run = "echo 'Tools are managed by mise' && ./scripts/setup-hooks.sh"
+run = "npm install && ./scripts/setup-hooks.sh"
 
 [tasks."codegen"]
 description = "Generate Rust DTOs and Frontend Types from TypeSpec"
