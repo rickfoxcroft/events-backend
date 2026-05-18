@@ -2,11 +2,6 @@
   "compatibility_date": "2026-05-14",
   "compatibility_flags": ["global_fetch_strictly_public"],
   "name": "event-app-web",
-  "main": "@astrojs/cloudflare/entrypoints/server",
-  "assets": {
-    "directory": "./dist",
-    "binding": "LOCAL_ASSETS",
-  },
   "observability": {
     "enabled": true,
   },

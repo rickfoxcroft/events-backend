@@ -26,11 +26,13 @@ run = "git diff --exit-code"
 
 [tasks."build:backend"]
 description = "Build the worker"
+depends = ["setup"]
 dir = "packages/backend"
 run = "worker-build --release"
 
 [tasks."build:frontend"]
 description = "Build the web app"
+depends = ["setup"]
 run = "npm run build --workspace=web"
 
 [tasks."build"]
@@ -65,11 +67,13 @@ npm run format --workspace=web
 
 [tasks."dev:backend"]
 description = "Run the worker locally"
+depends = ["setup"]
 dir = "packages/backend"
 run = "wrangler dev"
 
 [tasks."dev:frontend"]
 description = "Run the web app locally"
+depends = ["setup"]
 run = "npm run dev --workspace=web"
 
 [tasks."dev"]
@@ -82,13 +86,15 @@ wait
 
 [tasks."deploy:backend"]
 description = "Deploy the worker to Cloudflare"
+depends = ["build:backend"]
 dir = "packages/backend"
 run = "wrangler deploy --env production"
 
 [tasks."deploy:frontend"]
 description = "Deploy the web app to Cloudflare Pages"
+depends = ["build:frontend"]
 dir = "packages/web"
-run = "npx wrangler pages deploy dist"
+run = "npx wrangler pages deploy dist --project-name event-app-web"
 
 [tasks."deploy"]
 description = "Deploy everything"
@@ -96,14 +102,17 @@ depends = ["deploy:backend", "deploy:frontend"]
 
 [tasks."db:seed:local"]
 description = "Populate local D1 with mock data from the frontend via API"
+depends = ["setup"]
 run = "wrangler d1 execute event-app-db --local --command='DELETE FROM venue_images; DELETE FROM venues;' --yes --cwd=packages/backend && node scripts/seed-api.js"
 
 [tasks."db:migrate:local"]
 description = "Apply D1 schema locally"
+depends = ["setup"]
 dir = "packages/backend"
 run = "wrangler d1 execute event-app-db --local --file=schema.sql --yes"
 
 [tasks."db:migrate:remote"]
 description = "Apply D1 schema to production"
+depends = ["setup"]
 dir = "packages/backend"
 run = "wrangler d1 execute event-app-db --remote --file=schema.sql --yes --env production"
