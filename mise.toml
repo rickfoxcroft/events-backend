@@ -12,6 +12,7 @@ run = "npm install && ./scripts/setup-hooks.sh"
 
 [tasks."codegen"]
 description = "Generate Rust DTOs and Frontend Types from TypeSpec"
+depends = ["setup"]
 run = """
 tsp compile api.tsp
 npm run codegen:types --workspace=web
