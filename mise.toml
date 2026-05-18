@@ -20,7 +20,8 @@ npm run codegen:types --workspace=web
 
 [tasks."check:codegen"]
 description = "Verify that generated code matches api.tsp"
-run = "mise run codegen && git diff --exit-code"
+depends = ["codegen"]
+run = "git diff --exit-code"
 
 [tasks."build:backend"]
 description = "Build the worker"
@@ -42,7 +43,7 @@ run = "cargo test -j 1"
 
 [tasks."ci"]
 description = "Run all CI checks"
-depends = ["setup", "check:codegen", "lint", "test"]
+depends = ["check:codegen", "lint", "test"]
 
 [tasks."lint"]
 description = "Run clippy and rustfmt"
