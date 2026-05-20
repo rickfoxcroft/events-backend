@@ -13,6 +13,15 @@ This file contains repository-specific instructions, architecture rules, and wor
 - Maintain strict type safety; avoid `any` or unnecessary `unwrap()` calls in Rust.
 - Follow the "Contract-First" approach: update `api.tsp` before modifying DTOs.
 
+## UI & Styling (Open Design)
+
+- **Tailwind CSS 4**: Use utility classes for all styling.
+- **Visual Hierarchy**: Prioritize whitespace and typography over heavy borders or containers.
+- **Asset Protection**: Never apply CSS filters (grayscale, brightness, invert) to official brand logos.
+- **Typography**: 
+  - Headings should have tight tracking and high contrast.
+  - Body text should be readable and well-spaced.
+
 ## Available Skills
 
 The following specialized skills are configured for this repository. Activate them when performing related tasks:
@@ -23,6 +32,8 @@ The following specialized skills are configured for this repository. Activate th
   - _Activation_: `activate_skill(name="cloudflare-workers-testing")`
 - **seo-checklist**: Use this to review public-facing page structure and metadata.
   - _Activation_: `activate_skill(name="seo-checklist")`
+- **skill-open-design**: Use this when designing UI components, implementing animations, or auditing the visual polish of the Event App website.
+  - _Activation_: `activate_skill(name="skill-open-design")`
 
 ## Workflows
 
