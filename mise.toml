@@ -14,6 +14,7 @@ run = "npm install && ./scripts/setup-hooks.sh"
 description = "Generate Rust DTOs and Frontend Types from TypeSpec"
 depends = ["setup"]
 run = """
+set -e
 tsp compile api.tsp
 npm run codegen:types --workspace=web
 """
@@ -37,17 +38,30 @@ description = "Build everything"
 depends = ["build:backend", "build:frontend"]
 
 [tasks."test"]
-description = "Run backend tests"
-dir = "packages/backend"
-run = "cargo test -j 1"
+description = "Run all tests"
+depends = ["setup"]
+run = """
+cd packages/backend && cargo test -j 1
+"""
 
 [tasks."ci"]
 description = "Run all CI checks"
-depends = ["check:codegen", "lint", "test"]
+depends = ["check:codegen", "lint", "check:frontend", "test"]
+
+[tasks."check:frontend"]
+description = "Run frontend type checking"
+depends = ["setup"]
+run = "npm run check --workspace=web"
 
 [tasks."lint"]
-description = "Run clippy and rustfmt"
-run = "cargo clippy --all-targets -- -D warnings && cargo fmt --check"
+description = "Run all linters"
+depends = ["setup"]
+run = """
+set -e
+cd packages/backend && cargo clippy --all-targets -- -D warnings && cargo fmt --check
+npm run lint --workspace=web
+npm run format --workspace=web
+"""
 
 [tasks."dev:backend"]
 description = "Run the worker locally"
@@ -79,6 +93,10 @@ run = "npx wrangler pages deploy dist"
 [tasks."deploy"]
 description = "Deploy everything"
 depends = ["deploy:backend", "deploy:frontend"]
+
+[tasks."db:seed:local"]
+description = "Populate local D1 with mock data from the frontend via API"
+run = "wrangler d1 execute event-app-db --local --command='DELETE FROM venue_images; DELETE FROM venues;' --yes --cwd=packages/backend && node scripts/seed-api.js"
 
 [tasks."db:migrate:local"]
 description = "Apply D1 schema locally"

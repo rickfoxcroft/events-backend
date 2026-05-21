@@ -9,12 +9,24 @@ on:
 jobs:
   ci:
     runs-on: ubuntu-latest
+    env:
+      ENVIRONMENT: local
+      CF_ACCOUNT_ID: local-account-id
+      CF_IMAGES_API_TOKEN: local-token
+      CF_IMAGES_ACCOUNT_HASH: local-account-hash
+      PUBLIC_API_URL: http://localhost:8787
     steps:
       - uses: actions/checkout@v4
       - uses: jdx/mise-action@v2
 
       - name: Initialize Local DB
         run: mise run db:migrate:local
+
+      - name: Create Backend Config for CI
+        run: |
+          echo "CF_ACCOUNT_ID=local-account-id" > packages/backend/.dev.vars
+          echo "CF_IMAGES_API_TOKEN=local-token" >> packages/backend/.dev.vars
+          echo "CF_IMAGES_ACCOUNT_HASH=local-account-hash" >> packages/backend/.dev.vars
 
       - name: Start Backend Local Server
         run: ENVIRONMENT=local mise run dev:backend &

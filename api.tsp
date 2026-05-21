@@ -14,6 +14,7 @@ model VenueDTO {
   name: string;
   location: string;
   capacity: int32;
+  price_per_hour: int32;
   @format("uuid")
   owner_id: string;
   images: VenueImageDTO[];
@@ -29,6 +30,7 @@ model VenueInputDTO {
   name: string;
   location: string;
   capacity: int32;
+  price_per_hour: int32;
   image_ids: string[];
 }
 

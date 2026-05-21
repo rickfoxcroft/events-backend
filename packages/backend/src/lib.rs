@@ -13,13 +13,11 @@ pub mod models;
 pub mod ports;
 pub mod services;
 use adapters::database::D1VenueRepository;
-use adapters::storage::cloudflare_images::CloudflareImagesConfig;
-use adapters::storage::local::LocalImageStorage;
-use adapters::storage::StorageProvider;
+use adapters::storage::ImageStorageProvider;
 use models::config::AppConfig;
 
 struct AppState {
-    storage: StorageProvider,
+    storage: ImageStorageProvider,
 }
 
 #[event(fetch)]
@@ -27,16 +25,12 @@ pub async fn main(req: Request, env: Env, _ctx: worker::Context) -> Result<Respo
     console_error_panic_hook::set_once();
 
     let config = AppConfig::from_env(&env)?;
-    let storage = if config.environment == "local" {
-        StorageProvider::Local(LocalImageStorage::new("http://localhost:8787"))
-    } else {
-        StorageProvider::Cloudflare(CloudflareImagesConfig::new(
-            &config.cf_account_id,
-            &config.cf_images_api_token,
-            &config.cf_images_account_hash,
-        ))
-    };
+    let storage = ImageStorageProvider::from_config(&config);
 
+    build_app(req, env, storage).await
+}
+
+pub async fn build_app(req: Request, env: Env, storage: ImageStorageProvider) -> Result<Response> {
     let state = AppState { storage };
     let router = Router::with_data(state);
 

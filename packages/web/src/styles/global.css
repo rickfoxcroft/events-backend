@@ -1,1 +1,37 @@
-@import "tailwindcss";
+@import 'tailwindcss';
+
+@theme {
+  --color-primary: var(--brandPrimary);
+  --color-navy: var(--brandNavy);
+
+  --animate-fade-in-up: fade-in-up 0.8s ease-out forwards;
+}
+
+@layer base {
+  :root {
+    --brandPrimary: #4f46e5; /* Electric Indigo */
+    --brandNavy: #1e1b4b; /* Deep Indigo */
+    --brandWhite: #ffffff;
+  }
+
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+.animate-delay-100 {
+  animation-delay: 100ms;
+}
+.animate-delay-200 {
+  animation-delay: 200ms;
+}
+.animate-delay-300 {
+  animation-delay: 300ms;
+}

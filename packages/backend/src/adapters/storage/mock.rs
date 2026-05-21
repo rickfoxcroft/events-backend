@@ -14,7 +14,7 @@ impl MockImageStorage {
     pub fn new() -> Self {
         Self {
             upload_urls: Arc::new(RwLock::new(HashMap::new())),
-            public_url_prefix: "https://mock-storage.com".to_string(),
+            public_url_prefix: "http://localhost:8787".to_string(),
         }
     }
 }

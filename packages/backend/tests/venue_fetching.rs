@@ -1,4 +1,4 @@
-use cucumber::{given, then, when, World};
+use cucumber::{given, then, when, StatsWriter, World};
 use event_app_backend::models::{ImageUploadURLResponseDTO, VenueDTO, VenueInputDTO};
 use std::env;
 
@@ -33,23 +33,18 @@ async fn the_following_venues_exist(world: &mut FetchVenueWorld, step: &cucumber
     for row in table.rows.iter().skip(1) {
         let name = &row[0];
         let location = &row[1];
-        let capacity: i32 = row[2].parse().expect("Capacity must be a number");
+        let capacity: i32 = row[2].parse().unwrap();
 
         let input = VenueInputDTO {
             name: name.clone(),
             location: location.clone(),
             capacity,
+            price_per_hour: 100, // Default for tests
             image_ids: Vec::new(),
         };
 
         let url = format!("{}/venues", world.base_url);
-        world
-            .client
-            .post(&url)
-            .json(&input)
-            .send()
-            .await
-            .expect("Failed to create venue");
+        world.client.post(&url).json(&input).send().await.unwrap();
     }
 }
 
@@ -58,28 +53,20 @@ async fn the_following_venues_exist_with_images(
     world: &mut FetchVenueWorld,
     step: &cucumber::gherkin::Step,
 ) {
-    let table = step.table().expect("Step must have a table");
+    let table = step.table().unwrap();
 
     for row in table.rows.iter().skip(1) {
         let name = &row[0];
         let location = &row[1];
-        let capacity: i32 = row[2].parse().expect("Capacity must be a number");
+        let capacity: i32 = row[2].parse().unwrap();
         let images_str = &row[3];
 
         let mut image_ids = Vec::new();
         for _ in images_str.split(',') {
             let url = format!("{}/images/upload-url", world.base_url);
-            let resp = world
-                .client
-                .post(&url)
-                .send()
-                .await
-                .expect("Failed to get upload url");
+            let resp = world.client.post(&url).send().await.unwrap();
 
-            let upload_resp: ImageUploadURLResponseDTO = resp
-                .json()
-                .await
-                .expect("Failed to parse upload url response");
+            let upload_resp: ImageUploadURLResponseDTO = resp.json().await.unwrap();
             image_ids.push(upload_resp.image_id);
         }
 
@@ -87,31 +74,21 @@ async fn the_following_venues_exist_with_images(
             name: name.clone(),
             location: location.clone(),
             capacity,
+            price_per_hour: 100, // Default for tests
             image_ids,
         };
 
         let url = format!("{}/venues", world.base_url);
-        world
-            .client
-            .post(&url)
-            .json(&input)
-            .send()
-            .await
-            .expect("Failed to create venue");
+        world.client.post(&url).json(&input).send().await.unwrap();
     }
 }
 
 #[when(expr = "I request the list of all venues")]
 async fn i_request_all_venues(world: &mut FetchVenueWorld) {
     let url = format!("{}/venues", world.base_url);
-    let resp = world
-        .client
-        .get(&url)
-        .send()
-        .await
-        .expect("Failed to list venues");
+    let resp = world.client.get(&url).send().await.unwrap();
 
-    world.fetched_venues = resp.json().await.expect("Failed to parse venues list");
+    world.fetched_venues = resp.json().await.unwrap();
 }
 
 #[then(expr = "I should receive an empty list of venues")]
@@ -136,13 +113,13 @@ async fn venue_should_display_images(world: &mut FetchVenueWorld, name: String) 
         .fetched_venues
         .iter()
         .find(|v| v.name == name)
-        .expect("Venue not found");
+        .unwrap();
     assert!(!venue.images.is_empty(), "Venue '{}' has no images", name);
 }
 
 #[tokio::test]
 async fn test_venue_fetching() {
-    FetchVenueWorld::cucumber()
+    let stats = FetchVenueWorld::cucumber()
         .max_concurrent_scenarios(1)
         .before(|_, _, _, _| {
             Box::pin(async move {
@@ -154,7 +131,7 @@ async fn test_venue_fetching() {
                         "event-app-db",
                         "--local",
                         "--command",
-                        "CREATE TABLE IF NOT EXISTS venues (id TEXT PRIMARY KEY, name TEXT NOT NULL, location TEXT NOT NULL, capacity INTEGER NOT NULL, owner_id TEXT NOT NULL); CREATE TABLE IF NOT EXISTS venue_images (id TEXT PRIMARY KEY, venue_id TEXT NOT NULL, url TEXT NOT NULL, FOREIGN KEY (venue_id) REFERENCES venues(id) ON DELETE CASCADE); DELETE FROM venue_images; DELETE FROM venues;",
+                        "CREATE TABLE IF NOT EXISTS venues (id TEXT PRIMARY KEY, name TEXT NOT NULL, location TEXT NOT NULL, capacity INTEGER NOT NULL, price_per_hour INTEGER NOT NULL DEFAULT 0, owner_id TEXT NOT NULL); CREATE TABLE IF NOT EXISTS venue_images (id TEXT PRIMARY KEY, venue_id TEXT NOT NULL, url TEXT NOT NULL, FOREIGN KEY (venue_id) REFERENCES venues(id) ON DELETE CASCADE); DELETE FROM venue_images; DELETE FROM venues;",
                         "--yes",
                     ])
                     .status();
@@ -162,4 +139,8 @@ async fn test_venue_fetching() {
         })
         .run("features/fetch_venues.feature")
         .await;
+
+    if stats.failed_steps() > 0 {
+        panic!("Cucumber tests failed");
+    }
 }
