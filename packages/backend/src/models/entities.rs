@@ -43,6 +43,7 @@ pub struct VenueEntity {
     pub name: String,
     pub location: String,
     pub capacity: i32,
+    pub price_per_hour: i32,
     pub owner_id: UserId,
 }
 

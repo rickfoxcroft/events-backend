@@ -3,6 +3,7 @@ CREATE TABLE IF NOT EXISTS venues (
     name TEXT NOT NULL,
     location TEXT NOT NULL,
     capacity INTEGER NOT NULL,
+    price_per_hour INTEGER NOT NULL DEFAULT 0,
     owner_id TEXT NOT NULL
 );
 

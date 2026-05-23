@@ -4,149 +4,153 @@
  */
 
 export interface paths {
-    "/images/upload-url": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["Images_getUploadUrl"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+  '/images/upload-url': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/venues": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["Venues_list"];
-        put?: never;
-        post: operations["Venues_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    post: operations['Images_getUploadUrl'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/venues': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
+    get: operations['Venues_list'];
+    put?: never;
+    post: operations['Venues_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
-    schemas: {
-        BookingDTO: {
-            /** Format: uuid */
-            id: string;
-            /** Format: uuid */
-            venue_id: string;
-            /** Format: uuid */
-            user_id: string;
-            start_time: string;
-            end_time: string;
-        };
-        ImageUploadURLResponseDTO: {
-            upload_url: string;
-            /** Format: uuid */
-            image_id: string;
-        };
-        VenueDTO: {
-            /** Format: uuid */
-            id: string;
-            name: string;
-            location: string;
-            /** Format: int32 */
-            capacity: number;
-            /** Format: uuid */
-            owner_id: string;
-            images: components["schemas"]["VenueImageDTO"][];
-        };
-        VenueImageDTO: {
-            /** Format: uuid */
-            id: string;
-            url: string;
-        };
-        VenueInputDTO: {
-            name: string;
-            location: string;
-            /** Format: int32 */
-            capacity: number;
-            image_ids: string[];
-        };
+  schemas: {
+    BookingDTO: {
+      /** Format: uuid */
+      id: string;
+      /** Format: uuid */
+      venue_id: string;
+      /** Format: uuid */
+      user_id: string;
+      start_time: string;
+      end_time: string;
     };
-    responses: never;
-    parameters: never;
-    requestBodies: never;
-    headers: never;
-    pathItems: never;
+    ImageUploadURLResponseDTO: {
+      upload_url: string;
+      /** Format: uuid */
+      image_id: string;
+    };
+    VenueDTO: {
+      /** Format: uuid */
+      id: string;
+      name: string;
+      location: string;
+      /** Format: int32 */
+      capacity: number;
+      /** Format: int32 */
+      price_per_hour: number;
+      /** Format: uuid */
+      owner_id: string;
+      images: components['schemas']['VenueImageDTO'][];
+    };
+    VenueImageDTO: {
+      /** Format: uuid */
+      id: string;
+      url: string;
+    };
+    VenueInputDTO: {
+      name: string;
+      location: string;
+      /** Format: int32 */
+      capacity: number;
+      /** Format: int32 */
+      price_per_hour: number;
+      image_ids: string[];
+    };
+  };
+  responses: never;
+  parameters: never;
+  requestBodies: never;
+  headers: never;
+  pathItems: never;
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    Images_getUploadUrl: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description The request has succeeded. */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ImageUploadURLResponseDTO"];
-                };
-            };
-        };
+  Images_getUploadUrl: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    Venues_list: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      /** @description The request has succeeded. */
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            /** @description The request has succeeded. */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["VenueDTO"][];
-                };
-            };
+        content: {
+          'application/json': components['schemas']['ImageUploadURLResponseDTO'];
         };
+      };
     };
-    Venues_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["VenueInputDTO"];
-            };
-        };
-        responses: {
-            /** @description The request has succeeded and a new resource has been created as a result. */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
+  };
+  Venues_list: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
+    requestBody?: never;
+    responses: {
+      /** @description The request has succeeded. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['VenueDTO'][];
+        };
+      };
+    };
+  };
+  Venues_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['VenueInputDTO'];
+      };
+    };
+    responses: {
+      /** @description The request has succeeded and a new resource has been created as a result. */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
 }

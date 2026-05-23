@@ -16,12 +16,13 @@ impl D1VenueRepository {
 impl VenueRepository for D1VenueRepository {
     async fn save_venue(&self, venue: VenueEntity) -> Result<()> {
         self.db
-            .prepare("INSERT INTO venues (id, name, location, capacity, owner_id) VALUES (?, ?, ?, ?, ?)")
+            .prepare("INSERT INTO venues (id, name, location, capacity, price_per_hour, owner_id) VALUES (?, ?, ?, ?, ?, ?)")
             .bind(&[
                 venue.id.0.into(),
                 venue.name.into(),
                 venue.location.into(),
                 venue.capacity.into(),
+                venue.price_per_hour.into(),
                 venue.owner_id.0.into(),
             ])?
             .run()

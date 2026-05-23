@@ -1,0 +1,79 @@
+---
+interface Props {
+  title?: string;
+  subtitle?: string;
+}
+
+const {
+  title = 'Find the Perfect Space for Your Next Event',
+  subtitle = 'Discover unique venues, from intimate galleries to grand ballrooms. Book your space in minutes.',
+} = Astro.props;
+---
+
+<section class="relative overflow-hidden bg-white py-24 md:py-32">
+  <!-- Decorative background element for "Open" feel -->
+  <div
+    class="bg-primary/5 absolute top-0 right-0 -z-10 h-[600px] w-[600px] translate-x-1/4 -translate-y-1/2 rounded-full blur-3xl"
+  >
+  </div>
+
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="max-w-3xl">
+      <!-- Staggered Entrance Animations -->
+      <h1
+        class="text-navy animate-fade-in-up text-5xl leading-tight font-extrabold tracking-tight opacity-0 md:text-7xl"
+      >
+        {title}
+      </h1>
+
+      <p
+        class="animate-fade-in-up animate-delay-100 mt-8 text-xl leading-relaxed text-gray-600 opacity-0"
+      >
+        {subtitle}
+      </p>
+
+      <div
+        class="animate-fade-in-up animate-delay-200 mt-12 flex flex-wrap gap-4 opacity-0"
+      >
+        <a
+          href="/venues"
+          class="bg-primary hover:bg-navy hover:shadow-primary/20 inline-flex items-center rounded-full px-8 py-4 font-bold tracking-wide text-white shadow-lg transition-all duration-300 hover:-translate-y-1"
+        >
+          Explore Venues
+        </a>
+        <a
+          href="/host"
+          class="text-navy hover:border-primary/30 inline-flex items-center rounded-full border-2 border-gray-100 px-8 py-4 font-bold tracking-wide transition-all duration-300 hover:-translate-y-1"
+        >
+          List Your Venue
+        </a>
+      </div>
+
+      <!-- Stats / Trust signal in Utility font -->
+      <div
+        class="animate-fade-in-up animate-delay-300 mt-16 flex gap-12 border-t border-gray-100 pt-8 opacity-0"
+      >
+        <div>
+          <span
+            class="text-navy block font-mono text-2xl font-bold tracking-tighter"
+            >500+</span
+          >
+          <span
+            class="text-sm font-medium tracking-widest text-gray-500 uppercase"
+            >Curated Venues</span
+          >
+        </div>
+        <div>
+          <span
+            class="text-navy block font-mono text-2xl font-bold tracking-tighter"
+            >12k+</span
+          >
+          <span
+            class="text-sm font-medium tracking-widest text-gray-500 uppercase"
+            >Happy Bookings</span
+          >
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

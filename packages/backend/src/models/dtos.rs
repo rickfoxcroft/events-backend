@@ -7,6 +7,7 @@ pub struct VenueDTO {
     pub name: String,
     pub location: String,
     pub capacity: i32,
+    pub price_per_hour: i32,
     pub owner_id: String,
     pub images: Vec<VenueImageDTO>,
 }
@@ -22,6 +23,7 @@ pub struct VenueInputDTO {
     pub name: String,
     pub location: String,
     pub capacity: i32,
+    pub price_per_hour: i32,
     pub image_ids: Vec<String>,
 }
 
@@ -49,6 +51,7 @@ impl From<(VenueEntity, Vec<VenueImageEntity>)> for VenueDTO {
             name: entity.name,
             location: entity.location,
             capacity: entity.capacity,
+            price_per_hour: entity.price_per_hour,
             owner_id: entity.owner_id.0,
             images: images.into_iter().map(VenueImageDTO::from).collect(),
         }

@@ -25,8 +25,9 @@ impl<R: VenueRepository, S: ImageStorage> VenueService<R, S> {
             name: input.name,
             location: input.location,
             capacity: input.capacity,
+            price_per_hour: input.price_per_hour,
             // TODO: Get the actual owner_id from the authenticated user context
-            owner_id: UserId("owner-1".to_string()),
+            owner_id: UserId("00000000-0000-0000-0000-000000000000".to_string()),
         };
         self.repo.save_venue(entity).await?;
 
@@ -72,6 +73,7 @@ mod tests {
             name: "Test Venue".to_string(),
             location: "Test Location".to_string(),
             capacity: 100,
+            price_per_hour: 50,
             image_ids: vec!["img-1".to_string(), "img-2".to_string()],
         };
 
