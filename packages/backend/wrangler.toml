@@ -12,6 +12,11 @@ ENVIRONMENT = "local"
 # CF_ACCOUNT_ID and CF_IMAGES_ACCOUNT_HASH should be in .dev.vars for local dev
 
 [env.production]
+[env.production.vars]
+ENVIRONMENT = "production"
+CF_ACCOUNT_ID = "unused-in-prod" # Should be provided via env vars if needed
+CF_IMAGES_ACCOUNT_HASH = "unused-in-prod" # Should be provided via env vars if needed
+
 [[env.production.d1_databases]]
 binding = "DB"
 database_name = "event-app-db"
