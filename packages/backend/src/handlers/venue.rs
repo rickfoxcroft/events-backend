@@ -12,6 +12,18 @@ pub async fn list_venues<R: VenueRepository, S: ImageStorage>(
     Response::from_json(&dtos)
 }
 
+pub async fn get_venue<R: VenueRepository, S: ImageStorage>(
+    id: String,
+    repo: R,
+    storage: S,
+) -> Result<Response> {
+    let service = VenueService::new(repo, storage);
+    match service.get_venue(id).await? {
+        Some(dto) => Response::from_json(&dto),
+        None => Response::error("Venue not found", 404),
+    }
+}
+
 pub async fn create_venue<R: VenueRepository, S: ImageStorage>(
     mut req: Request,
     repo: R,
