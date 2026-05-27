@@ -1,0 +1,26 @@
+---
+import Layout from '../layouts/Layout.astro';
+import ListingFlow from '../components/host/ListingFlow';
+---
+
+<Layout title="List Your Venue | Become a Host">
+  <div class="min-h-[80vh] bg-gray-50/50 py-16 md:py-24">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="mb-16 text-center">
+        <h1
+          class="text-navy animate-in fade-in slide-in-from-top-4 mb-4 text-4xl font-extrabold tracking-tight duration-700 md:text-5xl"
+        >
+          Share Your Space with the World
+        </h1>
+        <p
+          class="animate-in fade-in slide-in-from-top-4 mx-auto max-w-2xl text-lg text-gray-500 delay-100 duration-700 md:text-xl"
+        >
+          Whether it's a cozy studio or a grand hall, start hosting today and
+          turn your space into a destination.
+        </p>
+      </div>
+
+      <ListingFlow client:load />
+    </div>
+  </div>
+</Layout>

@@ -11,4 +11,28 @@ export const schemas = {
 {{#each schemas}}
   {{@key}},
 {{/each}}
-};
+}; export const paths = {
+{{#each endpoints}}
+  "{{alias}}": "{{path}}",
+{{/each}}
+}; export const endpoints = [
+{{#each endpoints}}
+  { method: "{{method}}", path: "{{path}}", alias: "{{alias}}", description: "{{description}}",
+  requestFormat: "{{requestFormat}}",
+  {{#if parameters}}
+    parameters: [
+    {{#each parameters}}
+      { name: "{{name}}",
+      {{#if description}}
+        description: "{{description}}",
+      {{/if}}
+      type: "{{type}}", schema:
+      {{{schema}}}
+      },
+    {{/each}}
+    ],
+  {{/if}}
+  response:
+  {{{response}}}, },
+{{/each}}
+];
