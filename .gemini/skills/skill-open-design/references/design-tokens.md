@@ -6,12 +6,12 @@ These tokens bridge the "Open Design" philosophy with the Event App brand.
 
 Use these color mappings for consistency across all dynamic components.
 
-| Token            | CSS Variable    | Tailwind Class                          | Usage                                         |
-| :--------------- | :-------------- | :-------------------------------------- | :-------------------------------------------- |
-| **Brand Primary**| `--brandPrimary`| `text-primary`, `bg-primary`            | Electric Indigo (#4f46e5). Primary actions.   |
-| **Brand Navy**   | `--brandNavy`   | `bg-navy`, `border-navy`                | Deep Indigo (#1e1b4b). Headings, footers.     |
-| **Brand White**  | `--brandWhite`  | `text-white`, `bg-white`                | Primary text, secondary backgrounds.          |
-| **Brand Glow**   | N/A             | `shadow-[0_0_20px_rgba(79,70,229,0.1)]` | Indigo hover states.                          |
+| Token             | CSS Variable     | Tailwind Class                          | Usage                                       |
+| :---------------- | :--------------- | :-------------------------------------- | :------------------------------------------ |
+| **Brand Primary** | `--brandPrimary` | `text-primary`, `bg-primary`            | Electric Indigo (#4f46e5). Primary actions. |
+| **Brand Navy**    | `--brandNavy`    | `bg-navy`, `border-navy`                | Deep Indigo (#1e1b4b). Headings, footers.   |
+| **Brand White**   | `--brandWhite`   | `text-white`, `bg-white`                | Primary text, secondary backgrounds.        |
+| **Brand Glow**    | N/A              | `shadow-[0_0_20px_rgba(79,70,229,0.1)]` | Indigo hover states.                        |
 
 ## 🛡️ Brand Integrity & Asset Protection
 

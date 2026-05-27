@@ -1,0 +1,91 @@
+---
+
+---
+
+<header
+  class="fixed top-0 left-0 z-50 w-full border-b border-gray-100 bg-white/80 backdrop-blur-md"
+>
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="flex h-20 items-center justify-between">
+      <!-- Logo / Brand -->
+      <a href="/" class="group flex items-center gap-2">
+        <div
+          class="bg-primary flex h-10 w-10 transform items-center justify-center rounded-xl transition-transform duration-300 group-hover:rotate-6"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="white"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="lucide lucide-map-pin"
+            ><path
+              d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"
+            ></path><circle cx="12" cy="10" r="3"></circle></svg
+          >
+        </div>
+        <span class="text-navy text-xl font-bold tracking-tight">EventApp</span>
+      </a>
+
+      <!-- Desktop Navigation -->
+      <nav class="hidden items-center gap-8 md:flex">
+        <a
+          href="/venues"
+          class="hover:text-primary text-sm font-semibold text-gray-600 transition-colors"
+          >Explore Venues</a
+        >
+        <a
+          href="/how-it-works"
+          class="hover:text-primary text-sm font-semibold text-gray-600 transition-colors"
+          >How it Works</a
+        >
+        <div class="h-4 w-px bg-gray-200"></div>
+        <a
+          href="/host"
+          class="text-navy hover:text-primary text-sm font-bold transition-colors"
+          >List Your Venue</a
+        >
+      </nav>
+
+      <!-- Auth CTAs -->
+      <div class="flex items-center gap-4">
+        <a
+          href="/login"
+          class="text-navy hover:text-primary hidden px-4 py-2 text-sm font-bold transition-colors sm:block"
+          >Sign In</a
+        >
+        <a
+          href="/register"
+          class="bg-primary hover:bg-navy hover:shadow-primary/20 inline-flex items-center rounded-full px-6 py-2.5 text-sm font-bold tracking-wide text-white shadow-md transition-all duration-300"
+        >
+          Join Now
+        </a>
+
+        <!-- Mobile Menu Toggle (Simplified for now) -->
+        <button class="text-navy p-2 md:hidden">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="lucide lucide-menu"
+            ><line x1="4" x2="20" y1="12" y2="12"></line><line
+              x1="4"
+              x2="20"
+              y1="6"
+              y2="6"></line><line x1="4" x2="20" y1="18" y2="18"></line></svg
+          >
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
