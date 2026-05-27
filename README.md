@@ -18,6 +18,7 @@ We use [TypeSpec](https://typespec.io/) as the single source of truth for our AP
 3.  **Frontend Types**: Generated in `packages/web/src/types/api.d.ts`.
 
 To update all generated code after changing `api.tsp`, run:
+
 ```bash
 mise run codegen
 ```
@@ -50,7 +51,7 @@ graph LR
     %% Flow of Logic and Types
     TSP == Codegen ==> TST
     TSP == Codegen ==> DTO
-    
+
     UI -- API Requests --> Worker
     Logic -- Persistence --> Data
     Logic -- Media Storage --> Media
@@ -89,6 +90,7 @@ graph LR
 ### 2. Development
 
 Start both the backend and frontend dev servers concurrently:
+
 ```bash
 mise run dev
 ```
@@ -99,6 +101,7 @@ mise run dev
 ### 3. Testing
 
 Run backend unit and E2E tests:
+
 ```bash
 mise run test
 ```
@@ -111,6 +114,7 @@ The project is designed for Cloudflare:
 - **Frontend**: Deployed to Cloudflare Pages.
 
 To deploy everything:
+
 ```bash
 mise run deploy
 ```

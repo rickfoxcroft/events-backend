@@ -4,9 +4,7 @@
     "dockerfile": "Dockerfile",
     "context": ".."
   },
-  "appPort": [
-    8787
-  ],
+  "appPort": [8787],
   "customizations": {
     "vscode": {
       "extensions": [
@@ -22,8 +20,6 @@
       }
     }
   },
-  "forwardPorts": [
-    8787
-  ],
+  "forwardPorts": [8787],
   "postCreateCommand": "mise install"
 }

@@ -4,12 +4,12 @@
       "initialization_options": {
         "cargo": {
           "target": "wasm32-unknown-unknown",
-          "allTargets": false,
+          "allTargets": false
         },
         "procMacro": {
-          "enable": true,
-        },
-      },
-    },
-  },
+          "enable": true
+        }
+      }
+    }
+  }
 }

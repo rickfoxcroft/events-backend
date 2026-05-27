@@ -38,10 +38,10 @@ The frontend application requires the backend API URL to be configured in `packa
 PUBLIC_API_URL="http://localhost:8787"
 ```
 
-*Note: The frontend will throw a Zod validation error if `PUBLIC_API_URL` is missing or invalid.*
+_Note: The frontend will throw a Zod validation error if `PUBLIC_API_URL` is missing or invalid._
 
-*   **Unit Tests**: Use `MockImageStorage` and do not require external credentials.
-*   **Integration Tests**: Run against the local worker and **require** real Cloudflare credentials for any scenario involving image uploads.
+- **Unit Tests**: Use `MockImageStorage` and do not require external credentials.
+- **Integration Tests**: Run against the local worker and **require** real Cloudflare credentials for any scenario involving image uploads.
 
 ## Available Skills
 
