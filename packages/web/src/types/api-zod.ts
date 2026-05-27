@@ -33,3 +33,35 @@ export const schemas = {
   VenueDTO,
   VenueInputDTO,
 };
+export const paths = {
+  Images_getUploadUrl: '/images/upload-url',
+  Venues_list: '/venues',
+  Venues_create: '/venues',
+};
+export const endpoints = [
+  {
+    method: 'post',
+    path: '/images/upload-url',
+    alias: 'Images_getUploadUrl',
+    description: '',
+    requestFormat: 'json',
+    response: ImageUploadURLResponseDTO,
+  },
+  {
+    method: 'get',
+    path: '/venues',
+    alias: 'Venues_list',
+    description: '',
+    requestFormat: 'json',
+    response: z.array(VenueDTO),
+  },
+  {
+    method: 'post',
+    path: '/venues',
+    alias: 'Venues_create',
+    description: '',
+    requestFormat: 'json',
+    parameters: [{ name: 'body', type: 'Body', schema: VenueInputDTO }],
+    response: z.void(),
+  },
+];

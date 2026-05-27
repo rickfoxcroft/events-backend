@@ -1,18 +1,16 @@
 ---
 import VenueCard from './VenueCard.astro';
-import { config } from '../config';
+import { api } from '../lib/api';
 import { schemas } from '../types/api-zod';
 import type { VenueDTO } from '../types/venue';
 
-const response = await fetch(`${config.publicApiUrl}/venues`);
+const { data, error, response } = await api.GET('/venues');
 
 // TODO: Implement more robust error handling (e.g. exponential backoff, circuit breaking)
 // and provide a better user experience (e.g. error states, retry button)
-if (!response.ok) {
+if (!response.ok || error) {
   throw new Error(`Failed to fetch venues: ${response.statusText}`);
 }
-
-const data = await response.json();
 
 let venues: VenueDTO[] = [];
 try {

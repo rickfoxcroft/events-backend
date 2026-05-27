@@ -1,5 +1,7 @@
 import type { JSX } from 'preact';
 import { useState } from 'preact/hooks';
+import { api } from '../../lib/api';
+import { schemas } from '../../types/api-zod';
 
 interface VenueFormData {
   name: string;
@@ -54,20 +56,19 @@ export default function ListingFlow() {
     setLoading(true);
     setError(null);
     try {
-      const API_URL = 'http://localhost:8787'; // Should ideally come from config
-
       // 1. Upload Images to Cloudflare
       const imageIds: string[] = [];
 
       for (const file of formData.files) {
-        // Get upload URL
-        const urlResp = await fetch(`${API_URL}/images/upload-url`, {
-          method: 'POST',
-        });
-        if (!urlResp.ok) throw new Error('Failed to get upload URL');
-        const { upload_url, image_id } = await urlResp.json();
+        // Get upload URL (Type-safe request)
+        const { data, error, response } = await api.POST('/images/upload-url');
+        if (!response.ok || error || !data)
+          throw new Error('Failed to get upload URL');
 
-        // Upload File
+        const { upload_url, image_id } =
+          schemas.ImageUploadURLResponseDTO.parse(data);
+
+        // Upload File (External URL, so we still use native fetch)
         const uploadData = new FormData();
         uploadData.append('file', file);
         const cfResp = await fetch(upload_url, {
@@ -79,7 +80,7 @@ export default function ListingFlow() {
         imageIds.push(image_id);
       }
 
-      // 2. Create Venue
+      // 2. Create Venue (Type-safe request with body validation)
       const payload = {
         name: formData.name,
         location: formData.location,
@@ -88,13 +89,11 @@ export default function ListingFlow() {
         image_ids: imageIds,
       };
 
-      const createResp = await fetch(`${API_URL}/venues`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+      const { error, response } = await api.POST('/venues', {
+        body: payload,
       });
 
-      if (!createResp.ok) throw new Error('Failed to create venue');
+      if (!response.ok || error) throw new Error('Failed to create venue');
 
       setStep(4); // Success Step
     } catch (err) {
