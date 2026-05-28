@@ -42,6 +42,13 @@ pub async fn build_app(req: Request, env: Env, storage: ImageStorageProvider) ->
             let storage = ctx.data.storage.clone();
             handlers::venue::list_venues(repo, storage).await
         })
+        .get_async("/venues/:id", |_, ctx| async move {
+            let id = ctx.param("id").cloned().unwrap_or_default();
+            let d1 = ctx.env.d1("DB")?;
+            let repo = D1VenueRepository::new(d1);
+            let storage = ctx.data.storage.clone();
+            handlers::venue::get_venue(id, repo, storage).await
+        })
         .post_async("/venues", |req, ctx| async move {
             let d1 = ctx.env.d1("DB")?;
             let repo = D1VenueRepository::new(d1);

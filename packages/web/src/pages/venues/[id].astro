@@ -1,0 +1,268 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { api } from '../../lib/api';
+import { schemas } from '../../types/api-zod';
+import type { VenueDTO } from '../../types/venue';
+
+const { id } = Astro.params;
+
+if (!id) {
+  return Astro.redirect('/404');
+}
+
+const { data, error, response } = await api.GET('/venues/{id}', {
+  params: {
+    path: { id },
+  },
+});
+
+if (!response.ok || error) {
+  if (response.status === 404) {
+    return Astro.redirect('/404');
+  }
+  throw new Error(`Failed to fetch venue: ${response.statusText}`);
+}
+
+let venue: VenueDTO;
+try {
+  venue = schemas.VenueDTO.parse(data);
+} catch (error) {
+  console.error('API Validation Error:', error);
+  throw new Error(`Failed to validate API response`);
+}
+
+const mainImage =
+  venue.images && venue.images.length > 0
+    ? venue.images[0].url
+    : '/placeholder-venue.svg';
+---
+
+<Layout title={`${venue.name} | Event App`}>
+  <main class="bg-white">
+    <!-- Hero Section with Image -->
+    <section class="relative h-[60vh] overflow-hidden">
+      <img
+        src={mainImage}
+        alt={venue.name}
+        class="h-full w-full object-cover"
+        {...{
+          onerror: "this.src='/placeholder-venue.svg'; this.onerror=null;",
+        }}
+      />
+      <div
+        class="from-navy/60 absolute inset-0 bg-gradient-to-t to-transparent"
+      >
+      </div>
+      <div class="absolute right-0 bottom-0 left-0 p-8 md:p-16">
+        <div class="mx-auto max-w-7xl">
+          <h1
+            class="text-5xl leading-tight font-extrabold tracking-tight text-white md:text-6xl"
+          >
+            {venue.name}
+          </h1>
+          <p class="mt-4 flex items-center gap-2 text-xl text-white/90">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucide-map-pin"
+              ><path
+                d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"
+              ></path><circle cx="12" cy="10" r="3"></circle></svg
+            >
+            {venue.location}
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Content Section -->
+    <section class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+      <div class="grid grid-cols-1 gap-16 lg:grid-cols-3">
+        <!-- Main Info -->
+        <div class="lg:col-span-2">
+          <div class="flex flex-wrap gap-8 border-b border-gray-100 pb-8">
+            <div class="flex items-center gap-3">
+              <div
+                class="bg-primary/10 text-primary flex h-12 w-12 items-center justify-center rounded-xl"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="lucide lucide-users"
+                  ><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"
+                  ></path><circle cx="9" cy="7" r="4"></circle><path
+                    d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path
+                    d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg
+                >
+              </div>
+              <div>
+                <p
+                  class="text-xs font-bold tracking-wider text-gray-400 uppercase"
+                >
+                  Capacity
+                </p>
+                <p class="text-navy text-lg font-bold">
+                  {venue.capacity} Guests
+                </p>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <div
+                class="bg-primary/10 text-primary flex h-12 w-12 items-center justify-center rounded-xl"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="lucide lucide-clock"
+                  ><circle cx="12" cy="12" r="10"></circle><polyline
+                    points="12 6 12 12 16 14"></polyline></svg
+                >
+              </div>
+              <div>
+                <p
+                  class="text-xs font-bold tracking-wider text-gray-400 uppercase"
+                >
+                  Price
+                </p>
+                <p class="text-navy text-lg font-bold">
+                  ${venue.price_per_hour}/hour
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-12">
+            <h2 class="text-navy text-3xl font-bold tracking-tight">
+              About this space
+            </h2>
+            <div class="prose prose-lg mt-6 leading-relaxed text-gray-600">
+              <p>
+                Experience unparalleled elegance at {venue.name}. Located in the
+                heart of {venue.location}, this stunning venue offers the
+                perfect backdrop for your next event. Whether you're planning a
+                corporate conference, a lavish wedding, or an intimate
+                gathering, our space provides the flexibility and sophistication
+                you need.
+              </p>
+              <p>
+                Our professional staff is dedicated to ensuring every detail is
+                perfect, allowing you to focus on your guests and enjoy the
+                occasion.
+              </p>
+            </div>
+          </div>
+
+          {
+            venue.images && venue.images.length > 1 && (
+              <div class="mt-16">
+                <h2 class="text-navy mb-8 text-2xl font-bold tracking-tight">
+                  Gallery
+                </h2>
+                <div class="grid grid-cols-2 gap-4">
+                  {venue.images.slice(1).map((img) => (
+                    <div class="overflow-hidden rounded-xl">
+                      <img
+                        src={img.url}
+                        alt=""
+                        class="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+                        {...{
+                          onerror:
+                            "this.src='/placeholder-venue.svg'; this.onerror=null;",
+                        }}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )
+          }
+        </div>
+
+        <!-- Booking Card -->
+        <div class="lg:col-span-1">
+          <div
+            class="sticky top-24 rounded-2xl border border-gray-100 bg-white p-8 shadow-lg"
+          >
+            <div class="mb-6 flex items-end justify-between">
+              <div>
+                <span class="text-navy text-3xl font-bold"
+                  >${venue.price_per_hour}</span
+                >
+                <span class="text-gray-500"> / hour</span>
+              </div>
+            </div>
+
+            <div class="space-y-4">
+              <div>
+                <label
+                  class="mb-1 block text-xs font-bold tracking-widest text-gray-400 uppercase"
+                  >Date</label
+                >
+                <div
+                  class="rounded-lg border border-gray-200 bg-gray-50 p-3 text-gray-500"
+                >
+                  Select a date...
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label
+                    class="mb-1 block text-xs font-bold tracking-widest text-gray-400 uppercase"
+                    >Start Time</label
+                  >
+                  <div
+                    class="rounded-lg border border-gray-200 bg-gray-50 p-3 text-gray-500"
+                  >
+                    09:00 AM
+                  </div>
+                </div>
+                <div>
+                  <label
+                    class="mb-1 block text-xs font-bold tracking-widest text-gray-400 uppercase"
+                    >End Time</label
+                  >
+                  <div
+                    class="rounded-lg border border-gray-200 bg-gray-50 p-3 text-gray-500"
+                  >
+                    05:00 PM
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <button
+              class="bg-primary hover:bg-navy mt-8 w-full rounded-full py-4 font-bold tracking-wider text-white transition-colors"
+            >
+              Check Availability
+            </button>
+
+            <p class="mt-4 text-center text-xs text-gray-400">
+              You won't be charged yet
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</Layout>

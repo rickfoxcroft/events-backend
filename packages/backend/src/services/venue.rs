@@ -18,6 +18,11 @@ impl<R: VenueRepository, S: ImageStorage> VenueService<R, S> {
         Ok(items.into_iter().map(VenueDTO::from).collect())
     }
 
+    pub async fn get_venue(&self, id: String) -> Result<Option<VenueDTO>> {
+        let result = self.repo.get_venue_with_images(VenueId(id)).await?;
+        Ok(result.map(VenueDTO::from))
+    }
+
     pub async fn create_venue(&self, input: VenueInputDTO) -> Result<VenueId> {
         let venue_id = VenueId::new_v7();
         let entity = VenueEntity {
@@ -84,6 +89,33 @@ mod tests {
         assert_eq!(venues[0].id, venue_id.0);
         assert_eq!(venues[0].images.len(), 2);
         assert!(venues[0].images[0].url.contains("public/img-1"));
+    }
+
+    #[tokio::test]
+    async fn test_get_venue() {
+        let repo = MockVenueRepository::new();
+        let storage = MockImageStorage::new();
+        let service = VenueService::new(repo, storage);
+
+        let input = VenueInputDTO {
+            name: "Test Venue".to_string(),
+            location: "Test Location".to_string(),
+            capacity: 100,
+            price_per_hour: 50,
+            image_ids: vec!["img-1".to_string()],
+        };
+
+        let venue_id = service.create_venue(input).await.unwrap();
+
+        let venue = service.get_venue(venue_id.0.clone()).await.unwrap();
+        assert!(venue.is_some());
+        let venue = venue.unwrap();
+        assert_eq!(venue.id, venue_id.0);
+        assert_eq!(venue.name, "Test Venue");
+        assert_eq!(venue.images.len(), 1);
+
+        let non_existent = service.get_venue("non-existent".to_string()).await.unwrap();
+        assert!(non_existent.is_none());
     }
 
     #[tokio::test]

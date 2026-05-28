@@ -37,6 +37,7 @@ export const paths = {
   Images_getUploadUrl: '/images/upload-url',
   Venues_list: '/venues',
   Venues_create: '/venues',
+  Venues_get: '/venues/:id',
 };
 export const endpoints = [
   {
@@ -63,5 +64,14 @@ export const endpoints = [
     requestFormat: 'json',
     parameters: [{ name: 'body', type: 'Body', schema: VenueInputDTO }],
     response: z.void(),
+  },
+  {
+    method: 'get',
+    path: '/venues/:id',
+    alias: 'Venues_get',
+    description: '',
+    requestFormat: 'json',
+    parameters: [{ name: 'id', type: 'Path', schema: z.string() }],
+    response: VenueDTO,
   },
 ];

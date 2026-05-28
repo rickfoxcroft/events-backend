@@ -54,6 +54,7 @@ model BookingDTO {
 @route("/venues")
 interface Venues {
   @get list(): VenueDTO[];
+  @get get(@path id: string): VenueDTO;
   @post create(@body venue: VenueInputDTO): {
     @statusCode statusCode: 201;
   };
