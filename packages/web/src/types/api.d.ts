@@ -71,6 +71,19 @@ export interface components {
       /** Format: uuid */
       image_id: string;
     };
+    UserDTO: {
+      /** Format: uuid */
+      id: string;
+      email: string;
+      name: string;
+      avatar_url?: string;
+    };
+    UserSyncInputDTO: {
+      provider_id: string;
+      email: string;
+      name: string;
+      avatar_url?: string;
+    };
     VenueDTO: {
       /** Format: uuid */
       id: string;

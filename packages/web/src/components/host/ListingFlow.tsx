@@ -1,7 +1,8 @@
 import type { JSX } from 'preact';
-import { useState } from 'preact/hooks';
-import { api } from '../../lib/api';
+import { useState, useEffect } from 'preact/hooks';
+import { getAuthenticatedClient } from '../../lib/api';
 import { schemas } from '../../types/api-zod';
+import { config } from '../../config';
 
 interface VenueFormData {
   name: string;
@@ -15,6 +16,7 @@ export default function ListingFlow() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [formData, setFormData] = useState<VenueFormData>({
     name: '',
     location: '',
@@ -22,6 +24,11 @@ export default function ListingFlow() {
     price_per_hour: 0,
     files: [],
   });
+
+  useEffect(() => {
+    const hasToken = document.cookie.includes('auth_token=');
+    setIsAuthenticated(hasToken);
+  }, []);
 
   const nextStep = () => setStep((s) => s + 1);
   const prevStep = () => setStep((s) => s - 1);
@@ -55,13 +62,15 @@ export default function ListingFlow() {
   const handleSubmit = async () => {
     setLoading(true);
     setError(null);
+    const authenticatedClient = getAuthenticatedClient();
     try {
       // 1. Upload Images to Cloudflare
       const imageIds: string[] = [];
 
       for (const file of formData.files) {
         // Get upload URL (Type-safe request)
-        const { data, error, response } = await api.POST('/images/upload-url');
+        const { data, error, response } =
+          await authenticatedClient.POST('/images/upload-url');
         if (!response.ok || error || !data)
           throw new Error('Failed to get upload URL');
 
@@ -89,7 +98,7 @@ export default function ListingFlow() {
         image_ids: imageIds,
       };
 
-      const { error, response } = await api.POST('/venues', {
+      const { error, response } = await authenticatedClient.POST('/venues', {
         body: payload,
       });
 
@@ -104,6 +113,44 @@ export default function ListingFlow() {
       setLoading(false);
     }
   };
+
+  if (isAuthenticated === false) {
+    return (
+      <div class="shadow-primary/5 mx-auto max-w-2xl rounded-3xl border border-gray-100 bg-white p-12 text-center shadow-xl">
+        <div class="bg-primary/10 text-primary mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+            <polyline points="10 17 15 12 10 7" />
+            <line x1="15" x2="3" y1="12" y2="12" />
+          </svg>
+        </div>
+        <h2 class="text-navy mb-4 text-3xl font-bold tracking-tight">
+          Login Required
+        </h2>
+        <p class="mb-10 text-lg text-gray-500">
+          You need to be logged in to list your venue on our platform.
+        </p>
+        <a
+          href={`${config.publicApiUrl}/auth/login`}
+          class="bg-primary hover:bg-navy inline-block rounded-full px-12 py-4 text-lg font-bold text-white shadow-lg transition-all"
+        >
+          Login with Google
+        </a>
+      </div>
+    );
+  }
+
+  if (isAuthenticated === null) return null;
 
   return (
     <div class="shadow-primary/5 mx-auto max-w-2xl rounded-3xl border border-gray-100 bg-white p-8 shadow-xl md:p-12">

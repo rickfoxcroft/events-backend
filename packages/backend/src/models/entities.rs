@@ -38,6 +38,15 @@ impl BookingId {
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct UserEntity {
+    pub id: UserId,
+    pub provider_id: String,
+    pub email: String,
+    pub name: String,
+    pub avatar_url: Option<String>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct VenueEntity {
     pub id: VenueId,
     pub name: String,

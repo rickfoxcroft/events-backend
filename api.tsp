@@ -8,6 +8,14 @@ using TypeSpec.Rest;
 @service(#{ title: "Event Venue Booking API" })
 namespace EventApp;
 
+model UserDTO {
+  @format("uuid")
+  id: string;
+  email: string;
+  name: string;
+  avatar_url?: string;
+}
+
 model VenueDTO {
   @format("uuid")
   id: string;
@@ -49,6 +57,13 @@ model BookingDTO {
   user_id: string;
   start_time: string;
   end_time: string;
+}
+
+model UserSyncInputDTO {
+  provider_id: string;
+  email: string;
+  name: string;
+  avatar_url?: string;
 }
 
 @route("/venues")

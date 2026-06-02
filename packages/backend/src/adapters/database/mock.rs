@@ -1,5 +1,5 @@
-use crate::models::{VenueEntity, VenueId, VenueImageEntity};
-use crate::ports::VenueRepository;
+use crate::models::{UserEntity, VenueEntity, VenueId, VenueImageEntity};
+use crate::ports::{UserRepository, VenueRepository};
 use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
 use worker::Result;
@@ -8,6 +8,7 @@ use worker::Result;
 pub struct MockVenueRepository {
     venues: Arc<RwLock<HashMap<VenueId, VenueEntity>>>,
     venue_images: Arc<RwLock<HashMap<VenueId, Vec<VenueImageEntity>>>>,
+    users: Arc<RwLock<HashMap<String, UserEntity>>>,
 }
 
 impl MockVenueRepository {
@@ -73,6 +74,25 @@ impl VenueRepository for MockVenueRepository {
             .map_err(|_| worker::Error::from("Lock poisoned"))?;
         let venue_images = images.entry(image.venue_id.clone()).or_default();
         venue_images.push(image);
+        Ok(())
+    }
+}
+
+impl UserRepository for MockVenueRepository {
+    async fn get_user_by_provider_id(&self, provider_id: &str) -> Result<Option<UserEntity>> {
+        let users = self
+            .users
+            .read()
+            .map_err(|_| worker::Error::from("Lock poisoned"))?;
+        Ok(users.get(provider_id).cloned())
+    }
+
+    async fn save_user(&self, user: UserEntity) -> Result<()> {
+        let mut users = self
+            .users
+            .write()
+            .map_err(|_| worker::Error::from("Lock poisoned"))?;
+        users.insert(user.provider_id.clone(), user);
         Ok(())
     }
 }

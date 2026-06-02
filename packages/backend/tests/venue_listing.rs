@@ -15,8 +15,20 @@ impl Default for VenueWorld {
     fn default() -> Self {
         let base_url =
             env::var("TEST_API_URL").unwrap_or_else(|_| "http://127.0.0.1:8787".to_string());
+
+        let mut headers = reqwest::header::HeaderMap::new();
+        if let Ok(mut val) = reqwest::header::HeaderValue::from_str("Bearer mock-jwt-token-xyz") {
+            val.set_sensitive(true);
+            headers.insert(reqwest::header::AUTHORIZATION, val);
+        }
+
+        let client = reqwest::Client::builder()
+            .default_headers(headers)
+            .build()
+            .unwrap_or_else(|_| reqwest::Client::new());
+
         Self {
-            client: reqwest::Client::new(),
+            client,
             base_url,
             owner_id: None,
             uploaded_image_ids: Vec::new(),

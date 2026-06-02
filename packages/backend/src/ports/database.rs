@@ -1,5 +1,5 @@
 #![allow(async_fn_in_trait)]
-use crate::models::{VenueEntity, VenueId, VenueImageEntity};
+use crate::models::{UserEntity, VenueEntity, VenueId, VenueImageEntity};
 use worker::Result;
 
 pub trait VenueRepository {
@@ -10,4 +10,9 @@ pub trait VenueRepository {
         id: VenueId,
     ) -> Result<Option<(VenueEntity, Vec<VenueImageEntity>)>>;
     async fn save_venue_image(&self, image: VenueImageEntity) -> Result<()>;
+}
+
+pub trait UserRepository {
+    async fn get_user_by_provider_id(&self, provider_id: &str) -> Result<Option<UserEntity>>;
+    async fn save_user(&self, user: UserEntity) -> Result<()>;
 }

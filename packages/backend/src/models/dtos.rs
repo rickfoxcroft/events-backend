@@ -1,5 +1,21 @@
-use crate::models::entities::{BookingEntity, VenueEntity, VenueImageEntity};
+use crate::models::entities::{BookingEntity, UserEntity, VenueEntity, VenueImageEntity};
 use serde::{Deserialize, Serialize};
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct UserDTO {
+    pub id: String,
+    pub email: String,
+    pub name: String,
+    pub avatar_url: Option<String>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct UserSyncInputDTO {
+    pub provider_id: String,
+    pub email: String,
+    pub name: String,
+    pub avatar_url: Option<String>,
+}
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct VenueDTO {
@@ -43,6 +59,17 @@ pub struct BookingDTO {
 }
 
 // The Bridge: From Entity to DTO
+impl From<UserEntity> for UserDTO {
+    fn from(entity: UserEntity) -> Self {
+        Self {
+            id: entity.id.0,
+            email: entity.email,
+            name: entity.name,
+            avatar_url: entity.avatar_url,
+        }
+    }
+}
+
 impl From<(VenueEntity, Vec<VenueImageEntity>)> for VenueDTO {
     fn from(data: (VenueEntity, Vec<VenueImageEntity>)) -> Self {
         let (entity, images) = data;

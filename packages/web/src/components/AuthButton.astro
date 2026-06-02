@@ -1,0 +1,25 @@
+---
+import { config } from '../config';
+const authToken = Astro.cookies.get('auth_token');
+const isAuthenticated = !!authToken;
+---
+
+{
+  isAuthenticated ? (
+    <div class="flex items-center gap-4">
+      <a
+        href={`${config.publicApiUrl}/auth/logout`}
+        class="text-navy rounded-full bg-gray-100 px-6 py-2 text-sm font-bold transition-colors hover:bg-gray-200"
+      >
+        Logout
+      </a>
+    </div>
+  ) : (
+    <a
+      href={`${config.publicApiUrl}/auth/login`}
+      class="bg-primary hover:bg-navy rounded-full px-6 py-2 text-sm font-bold text-white transition-colors"
+    >
+      Login with Google
+    </a>
+  )
+}
