@@ -111,7 +111,7 @@ mise run test
 The project is designed for Cloudflare:
 
 - **Backend**: Deployed as a Worker.
-- **Frontend**: Deployed to Cloudflare Pages.
+- **Frontend**: Deployed to Cloudflare Workers (with Assets).
 
 To deploy everything:
 

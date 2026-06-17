@@ -91,10 +91,10 @@ dir = "packages/backend"
 run = "wrangler deploy --env production"
 
 [tasks."deploy:frontend"]
-description = "Deploy the web app to Cloudflare Pages"
+description = "Deploy the web app to Cloudflare Workers"
 depends = ["build:frontend"]
 dir = "packages/web"
-run = "npx wrangler pages deploy dist --project-name event-app-web"
+run = "npx wrangler deploy --config dist/server/wrangler.json"
 
 [tasks."deploy"]
 description = "Deploy everything"
