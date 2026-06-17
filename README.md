@@ -119,6 +119,9 @@ To deploy everything:
 mise run deploy
 ```
 
+For more details on the frontend hosting architecture, see [ADR 001: Frontend Deployment to Cloudflare Workers](./docs/adr/001-frontend-deployment-workers.md).
+
+
 ## License
 
 Proprietary. Copyright (c) 2026 Rick Foxcroft. All rights reserved. See `LICENSE` for more details.
