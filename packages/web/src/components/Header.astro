@@ -1,5 +1,5 @@
 ---
-
+import AuthButton from './AuthButton.astro';
 ---
 
 <header
@@ -53,17 +53,7 @@
 
       <!-- Auth CTAs -->
       <div class="flex items-center gap-4">
-        <a
-          href="/login"
-          class="text-navy hover:text-primary hidden px-4 py-2 text-sm font-bold transition-colors sm:block"
-          >Sign In</a
-        >
-        <a
-          href="/register"
-          class="bg-primary hover:bg-navy hover:shadow-primary/20 inline-flex items-center rounded-full px-6 py-2.5 text-sm font-bold tracking-wide text-white shadow-md transition-all duration-300"
-        >
-          Join Now
-        </a>
+        <AuthButton />
 
         <!-- Mobile Menu Toggle (Simplified for now) -->
         <button class="text-navy p-2 md:hidden">

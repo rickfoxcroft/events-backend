@@ -1,12 +1,12 @@
-pub mod cloudflare_images;
-pub mod mock;
-
 use crate::models::config::AppConfig;
 use crate::ports::storage::ImageStorage;
 use async_trait::async_trait;
 use cloudflare_images::CloudflareImagesConfig;
 use mock::MockImageStorage;
 use worker::Result;
+
+pub mod cloudflare_images;
+pub mod mock;
 
 #[derive(Clone)]
 pub enum ImageStorageProvider {

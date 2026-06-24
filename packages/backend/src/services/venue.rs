@@ -23,7 +23,7 @@ impl<R: VenueRepository, S: ImageStorage> VenueService<R, S> {
         Ok(result.map(VenueDTO::from))
     }
 
-    pub async fn create_venue(&self, input: VenueInputDTO) -> Result<VenueId> {
+    pub async fn create_venue(&self, input: VenueInputDTO, owner_id: UserId) -> Result<VenueId> {
         let venue_id = VenueId::new_v7();
         let entity = VenueEntity {
             id: venue_id.clone(),
@@ -31,8 +31,7 @@ impl<R: VenueRepository, S: ImageStorage> VenueService<R, S> {
             location: input.location,
             capacity: input.capacity,
             price_per_hour: input.price_per_hour,
-            // TODO: Get the actual owner_id from the authenticated user context
-            owner_id: UserId("00000000-0000-0000-0000-000000000000".to_string()),
+            owner_id,
         };
         self.repo.save_venue(entity).await?;
 
@@ -73,6 +72,7 @@ mod tests {
         let repo = MockVenueRepository::new();
         let storage = MockImageStorage::new();
         let service = VenueService::new(repo, storage);
+        let owner_id = UserId::new_v7();
 
         let input = VenueInputDTO {
             name: "Test Venue".to_string(),
@@ -82,7 +82,7 @@ mod tests {
             image_ids: vec!["img-1".to_string(), "img-2".to_string()],
         };
 
-        let venue_id = service.create_venue(input).await.unwrap();
+        let venue_id = service.create_venue(input, owner_id).await.unwrap();
 
         let venues = service.list_venues().await.unwrap();
         assert_eq!(venues.len(), 1);
@@ -96,6 +96,7 @@ mod tests {
         let repo = MockVenueRepository::new();
         let storage = MockImageStorage::new();
         let service = VenueService::new(repo, storage);
+        let owner_id = UserId::new_v7();
 
         let input = VenueInputDTO {
             name: "Test Venue".to_string(),
@@ -105,7 +106,7 @@ mod tests {
             image_ids: vec!["img-1".to_string()],
         };
 
-        let venue_id = service.create_venue(input).await.unwrap();
+        let venue_id = service.create_venue(input, owner_id).await.unwrap();
 
         let venue = service.get_venue(venue_id.0.clone()).await.unwrap();
         assert!(venue.is_some());

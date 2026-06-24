@@ -1,5 +1,5 @@
-use crate::models::{VenueEntity, VenueId, VenueImageEntity};
-use crate::ports::VenueRepository;
+use crate::models::{UserEntity, VenueEntity, VenueId, VenueImageEntity};
+use crate::ports::{UserRepository, VenueRepository};
 use worker::d1::D1Database;
 use worker::Result;
 
@@ -82,6 +82,31 @@ impl VenueRepository for D1VenueRepository {
         self.db
             .prepare("INSERT INTO venue_images (id, venue_id, url) VALUES (?, ?, ?)")
             .bind(&[image.id.0.into(), image.venue_id.0.into(), image.url.into()])?
+            .run()
+            .await?;
+        Ok(())
+    }
+}
+
+impl UserRepository for D1VenueRepository {
+    async fn get_user_by_provider_id(&self, provider_id: &str) -> Result<Option<UserEntity>> {
+        self.db
+            .prepare("SELECT * FROM users WHERE provider_id = ?")
+            .bind(&[provider_id.into()])?
+            .first::<UserEntity>(None)
+            .await
+    }
+
+    async fn save_user(&self, user: UserEntity) -> Result<()> {
+        self.db
+            .prepare("INSERT INTO users (id, provider_id, email, name, avatar_url) VALUES (?, ?, ?, ?, ?)")
+            .bind(&[
+                user.id.0.into(),
+                user.provider_id.into(),
+                user.email.into(),
+                user.name.into(),
+                user.avatar_url.into(),
+            ])?
             .run()
             .await?;
         Ok(())

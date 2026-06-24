@@ -27,6 +27,9 @@ jobs:
           echo "CF_ACCOUNT_ID=local-account-id" > packages/backend/.dev.vars
           echo "CF_IMAGES_API_TOKEN=local-token" >> packages/backend/.dev.vars
           echo "CF_IMAGES_ACCOUNT_HASH=local-account-hash" >> packages/backend/.dev.vars
+          echo "JWT_SECRET=local-jwt-secret" >> packages/backend/.dev.vars
+          echo "GOOGLE_CLIENT_ID=local-client-id" >> packages/backend/.dev.vars
+          echo "GOOGLE_CLIENT_SECRET=local-client-secret" >> packages/backend/.dev.vars
 
       - name: Start Backend Local Server
         run: ENVIRONMENT=local mise run dev:backend &

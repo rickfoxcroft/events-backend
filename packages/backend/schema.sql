@@ -1,3 +1,14 @@
+CREATE TABLE IF NOT EXISTS users (
+    id TEXT PRIMARY KEY,
+    provider_id TEXT NOT NULL,
+    email TEXT NOT NULL,
+    name TEXT NOT NULL,
+    avatar_url TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(provider_id),
+    UNIQUE(email)
+);
+
 CREATE TABLE IF NOT EXISTS venues (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,

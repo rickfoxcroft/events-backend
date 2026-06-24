@@ -11,8 +11,10 @@ worker = { version = "0.8.1", features = ["d1"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 console_error_panic_hook = "0.1.7"
-uuid = { version = "1.10", features = ["v7", "serde", "js"] }
+uuid = { version = "1.10", features = ["v4", "v7", "serde", "js"] }
 async-trait = "0.1"
+jsonwebtoken = "9"
+reqwest = { version = "0.12", features = ["json"] }
 
 [dev-dependencies]
 cucumber = "0.23"
