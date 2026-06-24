@@ -3,7 +3,8 @@ import { z } from 'zod';
 const configSchema = z.object({
   publicApiUrl: z
     .string()
-    .url({ message: 'PUBLIC_API_URL must be a valid URL' }),
+    .url({ message: 'PUBLIC_API_URL must be a valid URL' })
+    .transform((val) => val.replace(/\/$/, '')),
 });
 
 export type Config = z.infer<typeof configSchema>;

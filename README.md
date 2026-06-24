@@ -111,13 +111,16 @@ mise run test
 The project is designed for Cloudflare:
 
 - **Backend**: Deployed as a Worker.
-- **Frontend**: Deployed to Cloudflare Pages.
+- **Frontend**: Deployed to Cloudflare Workers (with Assets).
 
 To deploy everything:
 
 ```bash
 mise run deploy
 ```
+
+For more details on the frontend hosting architecture, see [ADR 001: Frontend Deployment to Cloudflare Workers](./docs/adr/001-frontend-deployment-workers.md).
+
 
 ## License
 
